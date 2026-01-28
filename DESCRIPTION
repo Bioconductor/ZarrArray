@@ -21,7 +21,9 @@ Authors@R: c(
 	person("Hugo", "Gruson", role="aut",
 		email="hugo.gruson@embl.de",
 		comment=c(ORCID="0000-0002-4094-1476")),
-	person("Artür", "Manukyan", role="aut"),
+	person("Artür", "Manukyan", role="aut",
+		email="artur-man@hotmail.com", 
+		comment=c(ORCID="0000-0002-0441-9517")),
 	person("Levi", "Waldron", role="fnd",
 		email="levi.waldron@sph.cuny.edu",
 		comment=c(ORCID="0000-0003-2725-0694")))
