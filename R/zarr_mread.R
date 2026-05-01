@@ -83,7 +83,13 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
     ndim <- length(zarrdim(filepath, name))
     index <- vector("list", ndim)
   } else {
-    index <- starts
+    index <- mapply(function(x,y){
+      unlist(
+        mapply(function(xx,yy){
+          seq(xx, xx+yy-1)
+        }, x, y) 
+      )
+    }, starts, counts, SIMPLIFY = FALSE)
   }
   ans <- read_zarr_array(file.path(filepath, name), index = index)
   

@@ -154,15 +154,6 @@ read_zarrsparse_component <- function(filepath, group, name,
     start <- list(start)
   if (!is.null(count))
     count <- list(count)
-  print(filepath)
-  print(name)
-  print(start)
-  print(count)
-  print(as.integer)
-  print(
-    zarr_mread(filepath, name, starts=start, counts=count,
-               as.vector=TRUE, as.integer=as.integer)
-  )
   zarr_mread(filepath, name, starts=start, counts=count,
              as.vector=TRUE, as.integer=as.integer)
 }
