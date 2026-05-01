@@ -137,7 +137,7 @@ setMethod("chunkdim", "CSR_ZarrSparseMatrixSeed",
 setMethod("is_sparse", "ZarrSparseMatrixSeed", function(x) TRUE)
 
 setMethod("nzcount", "ZarrSparseMatrixSeed",
-          function(x) h5length(x@filepath, .get_data_name(x@subdata, x@group))
+          function(x) zarrlength(x@filepath, .get_data_name(x@subdata, x@group))
 )
 
 
@@ -166,10 +166,10 @@ read_zarrsparse_component <- function(filepath, group, name,
     return(read_zarrsparse_component(filepath, group, "shape"))
   }
   ## zarr format
-  h5attrs <- Rarr::read_zarr_attributes(file.path(filepath, group))
-  shape <- h5attrs$shape
+  zarrattrs <- Rarr::read_zarr_attributes(file.path(filepath, group))
+  shape <- zarrattrs$shape
   if (is.null(shape))
-    shape <- h5attrs$h5sparse_shape
+    shape <- zarrattrs$h5sparse_shape
   if (is.null(shape))
     stop(wmsg("Group \"", group, "\" in Zarr file \"", filepath,"\" ",
               "contains no 'shape' dataset and has no 'shape' ",
@@ -186,18 +186,19 @@ read_zarrsparse_component <- function(filepath, group, name,
     ## 10x format
     return("csr")
   }
-  ## h5ad format
+  ## anndata-zarr ?
   zarrattrs <- Rarr::read_zarr_attributes(file.path(filepath, group))
-  h5sparse_layout <- zarrattrs[["encoding-type"]]
-  if (is.null(h5sparse_layout))
-    h5sparse_layout <- zarrattrs[["h5sparse_format"]]
-  if (is.null(h5sparse_layout))
+  zarrsparse_layout <- zarrattrs[["encoding-type"]]
+  if (is.null(zarrsparse_layout))
+    # TODO: is there h5sparse_format like attribute in ... somewhere ?
+    zarrsparse_layout <- zarrattrs[["h5sparse_format"]]
+  if (is.null(zarrsparse_layout))
     return("csr")
-  ans <- tolower(substr(h5sparse_layout, 1L, 3L))
+  ans <- tolower(substr(zarrsparse_layout, 1L, 3L))
   if (!(ans %in% c("csr", "csc")))
     stop(wmsg("sparse matrix in group \"", group, "\" in Zarr ",
               "file \"", filepath,"\" is stored in unsupported ",
-              "layout \"", h5sparse_layout, "\""))
+              "layout \"", zarrsparse_layout, "\""))
   ans
 }
 
@@ -360,9 +361,7 @@ ZarrSparseMatrixSeed <- function(filepath, group, subdata=NULL,
   }
   
   ## Get 'indptr_ranges'.
-  # nzcount <- h5length(filepath, .get_data_name(subdata, group))
   nzcount <- zarrdim(filepath, .get_data_name(subdata, group))
-  # indices_len <- h5length(filepath, paste0(group, "/indices"))
   indices_len <- zarrdim(filepath, paste0(group, "/indices"))
   stopifnot(indices_len == nzcount)
   indptr <- .read_zarrsparse_indptr(filepath, group)

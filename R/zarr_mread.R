@@ -4,16 +4,6 @@
 ### -------------------------------------------------------------------------
 ###
 
-### The R type returned by zarr_mread() is determined by arguments 'filepath',
-### 'name', and 'as.integer'.
-get_zarrmread_returned_type <- function(filepath, name, as.integer=FALSE)
-{
-  name <- normarg_zarr_name(name)
-  
-  .Call2("C_get_zarrmread_returned_type", filepath, name, as.integer,
-         PACKAGE="HDF5Array")
-}
-
 ### When both 'starts' and 'counts' are specified, the selection must be
 ### strictly ascending along each dimension.
 ### By default the user-supplied selection is checked and reduced (if it
@@ -78,6 +68,8 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
   }
 
   # read zarr
+  # This block mimics .Call2("C_h5mread", ...) from h5mread package
+  # TODO: are we using all .Call2("C_h5mread") arguments ? 
   if(is.null(starts)){
     # TODO: is this necessary
     ndim <- length(zarrdim(filepath, name))

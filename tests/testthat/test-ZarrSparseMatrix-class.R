@@ -1,19 +1,31 @@
 library(Rarr)
-library(anndataR)
-library(h5mread)
 library(ZarrArray)
+skip_if_not_installed("anndataR")
 
-# zarr file
-zarr_dir <- system.file("extdata", "example_v2.zarr.zip", package = "anndataR")
-td <- tempdir(check = TRUE)
-unzip(zarr_dir, exdir = td)
-store <- file.path(td, "example_v2.zarr")
-
-test_that("read sparse", {
-
-  # read sparse matrix
-  name <- "layers/csc_counts"
-  ZarrSparseMatrix(store, name)
-
-  expect_equal(1,1)
-})
+# test on both v2 and v3
+for(v in c("v2", "v3")){
+  
+  # unpack zarr
+  zarr_dir <- system.file("extdata", 
+                          paste0("example_", v, ".zarr.zip"), 
+                          package = "anndataR")
+  td <- tempdir(check = TRUE)
+  unzip(zarr_dir, exdir = td)
+  zarr_path <- file.path(td, paste0("example_", v, ".zarr"))
+  
+  test_that("read sparse", {
+    
+    # read sparse matrix
+    name <- "layers/csc_counts"
+    A <- ZarrSparseMatrix(zarr_path, name)
+    expect_true(is(A, "ZarrSparseMatrix"))
+    expect_true(is(A, "DelayedArray"))
+    expect_true(is(seed(A), "ZarrSparseMatrixSeed"))
+    expect_identical(tools::file_path_as_absolute(path(A)), zarr_path)
+    expect_identical(dim(A), c(100L, 50L))
+    expect_identical(type(A), "double")
+    expect_identical(chunkdim(A), c(1L, 50L))
+    
+    expect_equal(1,1)
+  }) 
+}

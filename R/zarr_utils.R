@@ -6,70 +6,37 @@
 ###
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_zarr_group() and create_zarr()
-###
-
-#' create_zarr_group
-#'
-#' create zarr groups
-#'
-#' @param store the location of (zarr) store
-#' @param name name of the group
-#' @param version zarr version
-#' @export
-create_zarr_group <- function(store, name, version = "v2") {
-  split.name <- strsplit(name, split = "\\/")[[1]]
-  if (length(split.name) > 1) {
-    split.name <- vapply(seq_len(length(split.name)),
-                         function(x) paste(split.name[seq_len(x)], collapse = "/"),
-                         FUN.VALUE = character(1))
-    split.name <- rev(tail(split.name, 2))
-    if (!dir.exists(file.path(store, split.name[2])))
-      create_zarr_group(store = store, name = split.name[2])
-  }
-  dir.create(file.path(store, split.name[1]), showWarnings = FALSE)
-  switch(version,
-         v2 = {
-           write("{\"zarr_format\":2}", file = file.path(store, split.name[1], ".zgroup"))},
-         v3 = {
-           stop("Currently only zarr v2 is supported!")
-         },
-         stop("only zarr v2 is supported. Use version = 'v2'")
-  )
-}
-
-#' create_zarr
-#'
-#' create zarr store
-#'
-#' @param dir the location of zarr store
-#' @param prefix prefix of the zarr store
-#' @param version zarr version
-#' @examples
-#' dir.create(td <- tempfile())
-#' zarr_name <- "test"
-#' create_zarr(dir = td, prefix = "test")
-#' dir.exists(file.path(td, "test.zarr"))
-#' @export
-create_zarr <- function(store, version = "v2") {
-  prefix <- basename(store)
-  dir <- gsub(paste0(prefix, "$"), "", store)
-  create_zarr_group(store = dir, name = prefix, version = version)
-}
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### zarrexists()
 ###
 
 zarrexists <- function(filepath, name)
 {
   dir.exists(file.path(filepath, name))
-  # zarr.array <- pizzarr::zarr_open(store = filepath, mode = "r")
-  # if(grepl(".zarr$", filepath)){
-  #   zarr.array$contains_item(name)
-  # } else {
-  #   return(FALSE)
-  # }
+}
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### zarrtype()
+###
+
+zarrtype <- function(filepath, name)
+{
+  loc <- file.path(filepath, name)
+  if(file.exists(file.path(loc, ".zarray")))
+    return("array")
+    
+  if(file.exists(file.path(loc, ".zgroup")))
+    return("group")
+  
+  zarrjson <- file.path(loc, "zarr.json")
+  if(file.exists(zarrjson)){
+    zarrmeta <- jsonlite::read_json(zarrjson)
+    if(zarrmeta[["node_type"]] == "group") {
+      return("group") 
+    } else {
+      return("array") 
+    }
+  } 
+  stop("Zarr node type cannot be determined!")
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -78,11 +45,7 @@ zarrexists <- function(filepath, name)
 
 zarrisgroup <- function(filepath, name)
 {
-  # zarr.array <- pizzarr::zarr_open(store = filepath, mode = "r")
-  # did <- try(zarr.array$get_item(name))
-  # ans <- !inherits(did, "try-error")
-  # ans
-  file.exists(file.path(filepath, name, ".zgroup"))
+  zarrtype(filepath, name) == "group"
 }
 
 
@@ -92,25 +55,21 @@ zarrisgroup <- function(filepath, name)
 
 zarrisdataset <- function(filepath, name)
 {
-  # zarr.array <- pizzarr::zarr_open(store = filepath, mode = "r")
-  # did <- try(zarr.array$get_item(name))
-  # ans <- !inherits(did, "try-error")
-  # ans
-  file.exists(file.path(filepath, name, ".zarray"))
+  zarrtype(filepath, name) == "array"
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### zarrdim() and zarrchunkdim()
 ###
 
-zarrdim <- function(filepath, name)
+zarrdim <- function(filepath, name, as.integer = TRUE)
 {
-  # zarr.array <- pizzarr::zarr_open(store = filepath, mode = "r")
-  # zarrmat <- zarr.array$get_item(name)
-  # zarrmat$get_shape()
   overview <- zarr_overview(file.path(filepath, name), 
                                   as_data_frame = TRUE)
-  overview$dim[[1]]
+  dim <- overview$dim[[1]]
+  if (as.integer) 
+    dim <- dim_as_integer(dim, filepath, name)
+  dim
 }
 
 zarrchunkdim <- function(filepath, name, adjust=FALSE)
@@ -124,6 +83,23 @@ zarrchunkdim <- function(filepath, name, adjust=FALSE)
     chunkdim <- as.integer(pmin(dim, chunkdim))
   }
   chunkdim
+}
+
+# TODO: is this needed ?
+dim_as_integer <- function(dim, filepath, name, what = "Zarr dataset") 
+{
+  if (is.integer(dim)) 
+    return(dim)
+  if (any(dim > .Machine$integer.max)) {
+    dim_in1string <- paste0(dim, collapse = " x ")
+    stop(wmsg("Dimensions of ", what, " are too big: ", dim_in1string), 
+         "\n\n  ", wmsg("(This error is about Zarr dataset '", 
+                        name, "' ", "from file '", filepath, "'.)"), 
+         "\n\n  ", wmsg("Please note that the ZarrArray package only ", 
+                        "supports datasets where each dimension is ", 
+                        "<= '.Machine$integer.max' (= 2**31 - 1)."))
+  }
+  as.integer(dim)
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -194,6 +170,19 @@ validate_zarr_dataset_name <- function(path, name, what="'name'")
     return(paste0(what, " (\"", name, "\") is a dataset with ",
                   "no dimensions in Zarr directory \"", path, "\""))
   TRUE
+}
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Manipulate one-dimensional HDF5 datasets
+###
+
+### Length of a one-dimensional HDF5 dataset.
+### Return the length as a single integer (if < 2^31) or numeric (if >= 2^31).
+zarrlength <- function(filepath, name)
+{
+  len <- zarrdim(filepath, name, as.integer=FALSE)
+  stopifnot(length(len) == 1L)
+  len
 }
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

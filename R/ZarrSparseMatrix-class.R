@@ -40,10 +40,10 @@ ZarrSparseMatrix <- function(filepath, group)
 
 setMethod("nzcount", "ZarrSparseMatrix", function(x) nzcount(x@seed))
 
-# setMethod("extractNonzeroDataByCol", "ZarrSparseMatrix",
-#     function(x, j) extractNonzeroDataByCol(x@seed, j)
-# )
-# 
-# setMethod("extractNonzeroDataByRow", "ZarrSparseMatrix",
-#     function(x, i) extractNonzeroDataByCol(x@seed, i)
-# )
+setMethod("extractNonzeroDataByCol", "ZarrSparseMatrix",
+    function(x, j) extractNonzeroDataByCol(x@seed, j)
+)
+
+setMethod("extractNonzeroDataByRow", "ZarrSparseMatrix",
+    function(x, i) extractNonzeroDataByCol(x@seed, i)
+)

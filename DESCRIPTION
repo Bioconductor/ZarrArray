@@ -28,8 +28,8 @@ Authors@R: c(
 		email="levi.waldron@sph.cuny.edu",
 		comment=c(ORCID="0000-0003-2725-0694")))
 Depends: R (>= 3.4), methods, SparseArray, DelayedArray
-Imports: stats, tools, BiocGenerics, S4Vectors, IRanges, S4Arrays, h5mread,
-	Rarr (>= 1.11.33)
+Imports: stats, tools, BiocGenerics, S4Vectors, IRanges, S4Arrays,
+	Rarr (>= 1.11.33), jsonlite
 Suggests: paws.storage, HDF5Array, testthat, knitr, rmarkdown, BiocStyle, 
           anndataR
 VignetteBuilder: knitr
