@@ -7,7 +7,9 @@ setClass("ZarrArraySeed",
     contains=c("Array", "OutOfMemoryObject"),
     slots=c(
         ## ----------------- user supplied slots -----------------
-        zarr_path="character",  # Path must be absolute.
+        zarr_path="character",     # Path must be absolute.
+        s3_client="NULL_OR_list",  # NULL or a list produced by
+                                   # paws.storage::s3().
 
         ## ------------ automatically populated slots ------------
         type="character",
@@ -47,7 +49,7 @@ setMethod("chunkdim", "ZarrArraySeed", function(x) x@chunkdim)
 setMethod("extract_array", "ZarrArraySeed",
     function(x, index)
     {
-        ans <- Rarr::read_zarr_array(x@zarr_path, index)
+        ans <- Rarr::read_zarr_array(x@zarr_path, index, x@s3_client)
         ## Temporary fix.
         ## See https://github.com/Huber-group-EMBL/Rarr/issues/137
         if (typeof(ans) != x@type)
@@ -58,21 +60,26 @@ setMethod("extract_array", "ZarrArraySeed",
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### show()
+###
+
+setMethod("show", "ZarrArraySeed",
+    function(object)
+    {
+        cat(S4Arrays:::array_as_one_line_summary(object), ":\n", sep="")
+        cat("# path: ", path(object), "\n", sep="")
+        cat("# chunkdim: ", paste(chunkdim(object), collapse=" x "),
+            "\n", sep="")
+        cat("# fill_value: ", object@fill_value, "\n", sep="")
+    }
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Constructor
 ###
 
-.normarg_zarr_path <- function(zarr_path)
-{
-    if (!isSingleString(zarr_path))
-        stop(wmsg("'zarr_path' must be a single string"))
-    if (!dir.exists(zarr_path)) {
-        msg <- "the supplied path must be the path to an existing directory"
-        if (file.exists(zarr_path))
-            msg <- paste0(msg, ", not a file")
-        stop(wmsg(msg))
-    }
-    Rarr:::.normalize_array_path(zarr_path)
-}
+.zarr_path_is_remote <- function(zarr_path) grepl("^(https?|s3)://", zarr_path)
 
 .extract_Rtype_from_metadata <- function(metadata)
 {
@@ -102,10 +109,16 @@ setMethod("extract_array", "ZarrArraySeed",
             stop(wmsg("unable to determine the chunk dimensions ",
                       "for this Zarr dataset"))
     }
-    if (!(is.list(chunkdim) || isSingleNumber(chunkdim)))
+    if (is.list(chunkdim))
+        chunkdim <- unlist(chunkdim, use.names=FALSE)
+    if (!is.numeric(chunkdim))
         stop(wmsg("malformed chunk dim information found ",
                   "in the metadata of this Zarr dataset"))
-    chunkdim <- as.integer(unlist(chunkdim, use.names=FALSE))
+    if (!is.integer(chunkdim))
+        chunkdim <- as.integer(chunkdim)
+    if (S4Vectors:::anyMissingOrOutside(chunkdim, 0L))
+        stop(wmsg("Zarr datasets with negative or NA chunk dimensions ",
+                  "are not supported"))
     chunk_len <- prod(chunkdim)
     if (chunk_len > .Machine$integer.max)
         stop(wmsg("Each physical chunk in this Zarr dataset contains ",
@@ -132,15 +145,32 @@ setMethod("extract_array", "ZarrArraySeed",
     ans
 }
 
-ZarrArraySeed <- function(zarr_path)
+ZarrArraySeed <- function(zarr_path, s3_client=NULL)
 {
-    zarr_path <- .normarg_zarr_path(zarr_path)
-    metadata <- get_zarr_metadata(zarr_path)
+    if (!isSingleString(zarr_path))
+        stop(wmsg("'zarr_path' must be a single string"))
+    if (.zarr_path_is_remote(zarr_path)) {
+        if (is.null(s3_client))
+            s3_client <- Rarr:::.create_s3_client(zarr_path)
+    } else {
+        if (!dir.exists(zarr_path)) {
+            msg <- "'zarr_path' must be the path to an existing directory"
+            if (file.exists(zarr_path))
+                msg <- paste0(msg, ", not a file")
+            stop(wmsg(msg))
+        }
+        if (!is.null(s3_client))
+            stop(wmsg("'s3_client' must be NULL when 'zarr_path' ",
+                      "is a local path"))
+    }
+    zarr_path <- Rarr:::.normalize_array_path(zarr_path)
+    metadata <- get_zarr_metadata(zarr_path, s3_client=s3_client)
     Rtype <- .extract_Rtype_from_metadata(metadata)
     dim <- as.integer(unlist(metadata$shape), use.names=FALSE)
     chunkdim <- .extract_chunkdim_from_metadata(metadata)
     fill_value <- .extract_fill_value_from_metadata(metadata)
-    new2("ZarrArraySeed", zarr_path=zarr_path, type=Rtype,
-                          dim=dim, chunkdim=chunkdim, fill_value=fill_value)
+    new2("ZarrArraySeed", zarr_path=zarr_path, s3_client=s3_client,
+                          type=Rtype, dim=dim, chunkdim=chunkdim,
+                          fill_value=fill_value)
 }
 

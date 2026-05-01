@@ -27,12 +27,18 @@
 
 \usage{
 ## Constructor function:
-ZarrArray(zarr_path)
+ZarrArray(zarr_path, s3_client=NULL)
 }
 
 \arguments{
   \item{zarr_path}{
     The path (as a single string) to the Zarr dataset.
+  }
+  \item{s3_client}{
+    Object created by \code{paws.storage::\link[paws.storage]{s3}()}.
+    Only required for a Zarr dataset on a non-public S3 bucket. Leave
+    as \code{NULL} for a Zarr dataset on local storage or on a public
+    S3 bucket.
   }
 }
 
@@ -45,6 +51,9 @@ ZarrArray(zarr_path)
   \itemize{
     \item \link[DelayedArray]{DelayedArray} objects in the \pkg{DelayedArray}
           package.
+
+    \item \code{\link[paws.storage]{s3}} in the \pkg{paws.storage} package
+          for how to create a client for the S3 service.
 
     \item \code{\link{writeZarrArray}} for writing an array-like object
           to disk in Zarr format.

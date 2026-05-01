@@ -1,7 +1,3 @@
-o ZarrArraySeed() and ZarrArray() should support Zarr datasets on S3.
-  Note that Rarr::read_zarr_array(), the workhorse behind the extract_array()
-  method for ZarrArraySeed objects, already supports datasets stored on S3.
-
 o See this PR for anndataR (Bioconductor package) by Mark Keller and
   Artür Manukyan: https://github.com/scverse/anndataR/pull/190
 

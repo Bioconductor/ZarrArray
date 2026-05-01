@@ -10,6 +10,7 @@
 \alias{type,ZarrArraySeed-method}
 \alias{extract_array,ZarrArraySeed-method}
 \alias{chunkdim,ZarrArraySeed-method}
+\alias{show,ZarrArraySeed-method}
 
 \title{ZarrArraySeed objects}
 
@@ -26,7 +27,7 @@
 \usage{
 ## --- Constructor function ---
 
-ZarrArraySeed(zarr_path)
+ZarrArraySeed(zarr_path, s3_client=NULL)
 
 ## --- Accessors --------------
 
@@ -44,8 +45,8 @@ ZarrArraySeed(zarr_path)
 }
 
 \arguments{
-  \item{zarr_path}{
-    See \code{?\link{ZarrArray}} for a description of this argument.
+  \item{zarr_path, s3_client}{
+    See \code{?\link{ZarrArray}} for a description of these arguments.
   }
   \item{object, x}{
     A ZarrArraySeed object.

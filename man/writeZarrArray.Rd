@@ -134,7 +134,7 @@ as(m0, "ZarrArray")  # equivalent to writeZarrArray(m0)
 ## ---------------------------------------------------------------------
 ## Transform a Zarr dataset and write it back in Zarr format
 ## ---------------------------------------------------------------------
-M2 <- log(t(DelayedArray(M1)) + 1)  # DelayedMatrix object
+M2 <- log(t(M1) + 1)  # DelayedMatrix object
 
 M3 <- writeZarrArray(M2)
 M3  # ZarrMatrix object

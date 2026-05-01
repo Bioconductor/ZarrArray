@@ -27,12 +27,15 @@ setMethod("DelayedArray", "ZarrArraySeed",
 )
 
 ### Can take a ZarrArraySeed object.
-ZarrArray <- function(zarr_path)
+ZarrArray <- function(zarr_path, s3_client=NULL)
 {
     if (is(zarr_path, "ZarrArraySeed")) {
+        if (!missing(s3_client))
+            stop(wmsg("ZarrArray() must be called with a single argument ",
+                      "when passed a ZarrArraySeed object"))
         seed <- zarr_path
     } else {
-        seed <- ZarrArraySeed(zarr_path)
+        seed <- ZarrArraySeed(zarr_path, s3_client=s3_client)
     }
     DelayedArray(seed)
 }

@@ -31,7 +31,7 @@ exportMethods(
     dim,
 
     ## Methods for generics defined in the methods package:
-    coerce,
+    show, coerce,
 
     ## Methods for generics defined in the BiocGenerics package:
     path, type,
