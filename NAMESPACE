@@ -18,8 +18,17 @@ importFrom(Rarr, read_zarr_array, create_empty_zarr_array, update_zarr_array)
 exportClasses(
     "ZarrArraySeed",
     "ZarrArray", "ZarrMatrix",
-    "ZarrRealizationSink"
+    "ZarrRealizationSink",
+    "ZarrSparseMatrixSeed", "CSC_ZarrSparseMatrixSeed", "CSR_ZarrSparseMatrixSeed",
+    "ZarrSparseMatrix"
 )
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S3 methods
+###
+
+S3method(t, CSC_ZarrSparseMatrixSeed)
+S3method(t, CSR_ZarrSparseMatrixSeed)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,6 +44,12 @@ exportMethods(
 
     ## Methods for generics defined in the BiocGenerics package:
     path, type,
+    
+    ## Methods for generics defined in the S4Arrays package:
+    extract_array, is_sparse, 
+
+    ## Methods for generics defined in the SparseArray package:
+    nzcount, extract_sparse_array,
 
     ## Methods for generics defined in the S4Arrays package:
     extract_array, write_block,
@@ -62,6 +77,10 @@ export(
     get_writeZarrArray_chunk_maxlen, set_writeZarrArray_chunk_maxlen,
     get_writeZarrArray_chunk_shape, set_writeZarrArray_chunk_shape,
     get_writeZarrArray_auto_chunkdim,
+    
+    ## 
+    ZarrSparseMatrixSeed,
+    ZarrSparseMatrix,
 
     ## writeZarrArray.R:
     ZarrRealizationSink, writeZarrArray
