@@ -76,6 +76,8 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
     index <- vector("list", ndim)
   } else {
     index <- mapply(function(x,y){
+      if(length(x) < 1)
+        return(numeric(0))
       unlist(
         mapply(function(xx,yy){
           seq(xx, xx+yy-1)
