@@ -3,7 +3,6 @@
 ### -------------------------------------------------------------------------
 ###
 
-
 setClass("ZarrADMatrix",
          contains="DelayedMatrix",
          representation(seed="ZarrADMatrixSeed")

@@ -189,14 +189,14 @@ zarrlength <- function(filepath, name)
 ### ZarrCreateDataset()
 ###
 
-compute_max_string_size <- function(x)
-{
-  if (type(x) != "character")
-    return(NULL)
-  if (length(x) == 0L)
-    return(0L)
-  max(nchar(x, type="bytes", keepNA=FALSE))
-}
+# compute_max_string_size <- function(x)
+# {
+#   if (type(x) != "character")
+#     return(NULL)
+#   if (length(x) == 0L)
+#     return(0L)
+#   max(nchar(x, type="bytes", keepNA=FALSE))
+# }
 
 ZarrCreateDataset <- function(filepath, 
                               name, 

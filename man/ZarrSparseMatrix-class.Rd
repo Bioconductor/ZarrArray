@@ -50,9 +50,6 @@ ZarrSparseMatrix(filepath, group)
           matrices (or matrices in the \code{/layers} group)
           as \link[DelayedArray]{DelayedMatrix} objects.
 
-    \item \link{TENxMatrix} objects for representing 10x Genomics
-          datasets as \link[DelayedArray]{DelayedMatrix} objects.
-
     \item \link[DelayedArray]{DelayedMatrix} objects in the \pkg{DelayedArray}
           package.
 

@@ -64,7 +64,7 @@ ZarrADMatrix(filepath, layer=NULL)
     \item \link{ZarrArray} objects for representing conventional (a.k.a.
           dense) Zarr datasets as \link[DelayedArray]{DelayedArray} objects.
 
-    \item \link{H5SparseMatrix} objects for representing Zarr sparse matrices
+    \item \link{ZarrSparseMatrix} objects for representing Zarr sparse matrices
           as \link[DelayedArray]{DelayedMatrix} objects.
 
     \item \link[DelayedArray]{DelayedMatrix} objects in the \pkg{DelayedArray}
@@ -72,10 +72,10 @@ ZarrADMatrix(filepath, layer=NULL)
 
     \item The \link{ZarrADMatrixSeed} helper class.
 
-    \item \code{\link[zellkonverter]{readH5AD}} and
-          \code{\link[zellkonverter]{writeH5AD}} in
-          the \pkg{zellkonverter} package for
-          importing/exporting an \code{h5ad} file as/from a
+    \item \code{\link[anndataR]{read_zarr}} and
+          \code{\link[anndataR]{write_zarr}} in
+          the \pkg{anndataR} package for
+          importing/exporting an \code{anndata-zarr} store as/from a
           \link[SingleCellExperiment]{SingleCellExperiment} object.
 
     \item \link[SparseArray]{SparseArray} objects in the \pkg{SparseArray}

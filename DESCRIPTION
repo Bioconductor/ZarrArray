@@ -42,7 +42,9 @@ Collate:
 	ZarrArray-class.R
 	ZarrSparseMatrixSeed-class.R
 	ZarrSparseMatrix-class.R
+	ZarrADMatrix-class.R
+  ZarrADMatrixSeed-class.R
 	writeZarrArray-auto-args.R
 	writeZarrArray.R
 	zzz.R
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0
