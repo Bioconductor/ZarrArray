@@ -8,16 +8,13 @@
 ### strictly ascending along each dimension.
 ### By default the user-supplied selection is checked and reduced (if it
 ### can be).
-### Set 'noreduce' to TRUE to skip the reduction step.
 ### Set 'as.integer' to TRUE to force returning the result as an integer array.
-zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
-                    as.vector=NA, as.integer=FALSE, as.sparse=FALSE)
+zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, 
+                       as.integer=FALSE)
 {
   # check name
   # name <- normarg_zarr_name(name)
   
-  if (!isTRUEorFALSE(as.sparse))
-    stop(wmsg("'as.sparse' must be TRUE or FALSE"))
   if (is.null(starts)) {
     if (!is.null(counts))
       stop(wmsg("'counts' must be NULL when 'starts' is NULL"))
@@ -42,9 +39,9 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
                    logical(1))
       order_starts <- !all(ok)
       if (order_starts) {
-        if (length(ok) != 1L && isTRUE(as.vector))
-          stop(wmsg("when using 'as.vector=TRUE' on a ",
-                    "multidimensional dataset, list elements ",
+        # if (length(ok) != 1L && isTRUE(as.vector))
+        if (length(ok) != 1L)
+          stop(wmsg("when using multidimensional dataset, list elements ",
                     "in 'starts' must be strictly sorted"))
         starts <- lapply(seq_along(starts0),
                          function(i) {
@@ -53,10 +50,6 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
                              return(start0)
                            start0 <- sort(start0)
                            start <- unique(start0)
-                           if (as.sparse && length(start) != length(start0))
-                             stop(wmsg("when using 'as.sparse=TRUE', list ",
-                                       "elements in 'starts' are not allowed ",
-                                       "to contain duplicates"))
                            start
                          })
       } else {
@@ -85,10 +78,10 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
       )
     }, starts, counts, SIMPLIFY = FALSE)
   }
+  if(as.integer)
+    index <- lapply(index, as.integer)
   ans <- read_zarr_array(file.path(filepath, name), index = index)
   
-  if (as.sparse)
-    ans <- COO_SparseArray(ans[[1L]], ans[[2L]], ans[[3L]], check=FALSE)
   if (is.null(starts) || !order_starts)
     return(ans)
   index <- lapply(seq_along(starts0),
@@ -97,9 +90,7 @@ zarr_mread <- function(filepath, name, starts=NULL, counts=NULL, noreduce=FALSE,
                       return(NULL)
                     match(starts0[[i]], starts[[i]])
                   })
-  if (as.sparse) {
-    extract_sparse_array(ans, index)
-  } else if (is.array(ans)) {
+  if (is.array(ans)) {
     extract_array(ans, index)
   } else if (length(index) == 1L) {
     ans[index[[1L]]]

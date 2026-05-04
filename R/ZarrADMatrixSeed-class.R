@@ -73,7 +73,7 @@ setMethod("t", "CSR_ZarrADMatrixSeed", t.CSR_ZarrADMatrixSeed)
   ok <- try(zarrisdataset(filepath, ROWNAMES_DATASET), silent=TRUE)
   if (!isTRUE(ok))
     return(NULL)
-  zarr_mread(filepath, ROWNAMES_DATASET, as.vector=TRUE)
+  zarr_mread(filepath, ROWNAMES_DATASET)
 }
 
 ### Must return a list of length 2.

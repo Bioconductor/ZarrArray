@@ -147,15 +147,15 @@ setMethod("nzcount", "ZarrSparseMatrixSeed",
 
 ### All the zarrsparse components are monodimensional.
 read_zarrsparse_component <- function(filepath, group, name,
-                                    start=NULL, count=NULL, as.integer=FALSE)
+                                      start=NULL, count=NULL, 
+                                      as.integer=FALSE)
 {
   name <- paste0(group, "/", name)
   if (!is.null(start))
     start <- list(start)
   if (!is.null(count))
     count <- list(count)
-  zarr_mread(filepath, name, starts=start, counts=count,
-             as.vector=TRUE, as.integer=as.integer)
+  zarr_mread(filepath, name, starts=start, counts=count, as.integer=as.integer)
 }
 
 ### Returns a numeric vector (integer or double).
