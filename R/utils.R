@@ -72,11 +72,7 @@ compute_max_string_size <- function(x, keepNA=FALSE)
 
 .normarg_fill_value <- function(fill_value, type, nchar=NULL)
 {
-    if (is.null(fill_value)) {
-        dt <- Rarr:::.check_datatype(type, nchar=nchar)
-    } else {
-        dt <- Rarr:::.check_datatype(type, fill_value, nchar=nchar)
-    }
+    dt <- Rarr:::.check_datatype(type, fill_value, nchar=nchar)
     stopifnot(identical(names(dt), c("data_type", "fill_value")))
     dt$fill_value
 }
