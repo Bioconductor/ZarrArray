@@ -43,7 +43,7 @@ zarrtype2Rtype <- function(base_type)
                       float="double",
                       #complex="complex",
                       string=, unicode="character",
-                      stop(wmsg("unreocgnized Zarr base type: ", base_type)))
+                      stop(wmsg("unrecognized Zarr base type: ", base_type)))
 }
 
 
