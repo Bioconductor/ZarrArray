@@ -49,12 +49,7 @@ setMethod("chunkdim", "ZarrArraySeed", function(x) x@chunkdim)
 setMethod("extract_array", "ZarrArraySeed",
     function(x, index)
     {
-        ans <- Rarr::read_zarr_array(x@zarr_path, index, x@s3_client)
-        ## Temporary fix.
-        ## See https://github.com/Huber-group-EMBL/Rarr/issues/137
-        if (typeof(ans) != x@type)
-            storage.mode(ans) <- x@type
-        ans
+        Rarr::read_zarr_array(x@zarr_path, index, x@s3_client)
     }
 )
 
@@ -95,20 +90,17 @@ setMethod("show", "ZarrArraySeed",
 .extract_chunkdim_from_metadata <- function(metadata)
 {
     stopifnot(is.list(metadata), !is.null(names(metadata)))
-    chunkdim <- metadata$chunks  # only in Zarr v2
-    if (is.null(chunkdim)) {
-        chunk_grid <- metadata$chunk_grid  # only in Zarr v3
-        if (is.null(chunk_grid))
-            stop(wmsg("unable to determine the chunk dimensions ",
-                      "for this Zarr dataset"))
-        if (!identical(chunk_grid$name, "regular"))
-            stop(wmsg("only Zarr datasets with a regular chunk ",
-                      "grid are supported at the moment"))
-        chunkdim <- chunk_grid$configuration$chunk_shape
-        if (is.null(chunkdim))
-            stop(wmsg("unable to determine the chunk dimensions ",
-                      "for this Zarr dataset"))
-    }
+    chunk_grid <- metadata$chunk_grid  # only in Zarr v3
+    if (is.null(chunk_grid))
+        stop(wmsg("unable to determine the chunk dimensions ",
+                    "for this Zarr dataset"))
+    if (!identical(chunk_grid$name, "regular"))
+        stop(wmsg("only Zarr datasets with a regular chunk ",
+                    "grid are supported at the moment"))
+    chunkdim <- chunk_grid$configuration$chunk_shape
+    if (is.null(chunkdim))
+        stop(wmsg("unable to determine the chunk dimensions ",
+                    "for this Zarr dataset"))
     if (is.list(chunkdim))
         chunkdim <- unlist(chunkdim, use.names=FALSE)
     if (!is.numeric(chunkdim))
