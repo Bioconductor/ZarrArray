@@ -9,7 +9,7 @@ Description: The ZarrArray package leverages the Rarr package to bring Zarr
 biocViews: Infrastructure, DataRepresentation, DataImport
 URL: https://bioconductor.org/packages/ZarrArray
 BugReports: https://github.com/Bioconductor/ZarrArray/issues
-Version: 1.1.0
+Version: 1.1.2
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(

@@ -33,8 +33,8 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
   \item{x}{
     The array-like object to write to disk in Zarr format.
 
-    If \code{x} is a \link{DelayedArray} object or derivative, then
-    \code{writeZarrArray()} \emph{realizes} it on disk, that is, all
+    If \code{x} is a \link[DelayedArray]{DelayedArray} object or derivative,
+    then \code{writeZarrArray()} \emph{realizes} it on disk, that is, all
     the delayed operations carried by the object are executed on the
     fly while the object is written to disk.
     See "On-disk realization of a DelayedArray object as a Zarr dataset"
@@ -92,9 +92,10 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
 }
 
 \section{On-disk realization of a DelayedArray object as a Zarr dataset}{
-  When passed a \link{DelayedArray} object, \code{writeZarrArray()}
-  \emph{realizes} it on disk, that is, all the delayed operations carried
-  by the object are executed on the fly while the object is written to disk.
+  When passed a \link[DelayedArray]{DelayedArray} object,
+  \code{writeZarrArray()} \emph{realizes} it on disk, that is, all the
+  delayed operations carried by the object are executed on the fly while
+  the object is written to disk.
   This uses a block-processing strategy so that the full object is not
   realized at once in memory. Instead the object is processed block by block
   i.e. the blocks are realized in memory and written to disk one at a time.
@@ -103,8 +104,8 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
   to \code{writeZarrArray(as.array(x), ...)}, except that \code{as.array(x)}
   is not called because this would realize the full object at once in memory.
 
-  See \code{?\link{DelayedArray}} for general information about
-  \link{DelayedArray} objects.
+  See \code{?\link[DelayedArray]{DelayedArray}} for general information
+  about \link[DelayedArray]{DelayedArray} objects.
 }
 
 \seealso{

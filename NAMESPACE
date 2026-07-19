@@ -16,14 +16,14 @@ importFrom(Rarr, read_zarr_array, create_empty_zarr_array, update_zarr_array)
 ###
 
 exportClasses(
-    "ZarrArraySeed",
-    "ZarrArray", "ZarrMatrix",
-    "ZarrRealizationSink",
-    "ZarrSparseMatrixSeed", "CSC_ZarrSparseMatrixSeed", "CSR_ZarrSparseMatrixSeed",
-    "ZarrSparseMatrix",
-    "ZarrADMatrixSeed",
-    "Dense_ZarrADMatrixSeed", "CSC_ZarrADMatrixSeed", "CSR_ZarrADMatrixSeed",
-    "ZarrADMatrix"
+    ZarrArraySeed,
+    ZarrArray, ZarrMatrix,
+    ZarrRealizationSink,
+    ZarrSparseMatrixSeed, CSC_ZarrSparseMatrixSeed, CSR_ZarrSparseMatrixSeed,
+    ZarrSparseMatrix,
+    ZarrADMatrixSeed,
+    Dense_ZarrADMatrixSeed, CSC_ZarrADMatrixSeed, CSR_ZarrADMatrixSeed,
+    ZarrADMatrix
 )
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

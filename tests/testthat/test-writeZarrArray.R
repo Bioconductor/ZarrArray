@@ -21,12 +21,7 @@ test_that("ZarrRealizationSink()", {
 
 .read_from_sink <- function(sink, index)
 {
-    slice <- Rarr::read_zarr_array(sink@zarr_path, index=index)
-    ## Bug in Rarr:::.read_array_metadata() breaks Rarr::read_zarr_array().
-    ## See https://github.com/Huber-group-EMBL/Rarr/issues/137
-    ## Temporary workaround:
-    storage.mode(slice) <- sink@type  # temporary workaround
-    slice
+    Rarr::read_zarr_array(sink@zarr_path, index=index)
 }
 
 .check_ZarrRealizationSink_methods <-

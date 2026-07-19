@@ -82,25 +82,20 @@ setMethod("show", "ZarrArraySeed",
     zarrtype2Rtype(metadata$datatype$base_type)
 }
 
-### Where to find the chunk dim information depends on whether the
-### metadata comes from a Zarr v2 or v3 dataset, hence the gymnastics
-### below. Note that this could be avoided by modifying get_zarr_metadata()
-### so that it **always** return the metadata in Zarr v3 format.
-### See IMPORTANT NOTE in R/utils.R.
 .extract_chunkdim_from_metadata <- function(metadata)
 {
     stopifnot(is.list(metadata), !is.null(names(metadata)))
-    chunk_grid <- metadata$chunk_grid  # only in Zarr v3
+    chunk_grid <- metadata$chunk_grid
     if (is.null(chunk_grid))
         stop(wmsg("unable to determine the chunk dimensions ",
-                    "for this Zarr dataset"))
+                  "for this Zarr dataset"))
     if (!identical(chunk_grid$name, "regular"))
         stop(wmsg("only Zarr datasets with a regular chunk ",
-                    "grid are supported at the moment"))
+                  "grid are supported at the moment"))
     chunkdim <- chunk_grid$configuration$chunk_shape
     if (is.null(chunkdim))
         stop(wmsg("unable to determine the chunk dimensions ",
-                    "for this Zarr dataset"))
+                  "for this Zarr dataset"))
     if (is.list(chunkdim))
         chunkdim <- unlist(chunkdim, use.names=FALSE)
     if (!is.numeric(chunkdim))
@@ -156,7 +151,7 @@ ZarrArraySeed <- function(zarr_path, s3_client=NULL)
                       "is a local path"))
     }
     zarr_path <- Rarr:::.normalize_array_path(zarr_path)
-    metadata <- get_zarr_metadata(zarr_path, s3_client=s3_client)
+    metadata <- Rarr:::.read_array_metadata(zarr_path, s3_client=s3_client)
     Rtype <- .extract_Rtype_from_metadata(metadata)
     dim <- as.integer(unlist(metadata$shape), use.names=FALSE)
     chunkdim <- .extract_chunkdim_from_metadata(metadata)

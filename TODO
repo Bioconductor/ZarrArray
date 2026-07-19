@@ -35,8 +35,6 @@ o Benchmarking:
 After ZarrArray is accepted and added to BioC 3.23
 ==================================================
 
-o Register realization backend _ZarrArray in the DelayedArray package.
-
 o Implement saveZarrSummarizedExperiment() and
   loadZarrSummarizedExperiment() for saving/loading
   a Zarr-based SummarizedExperiment object to/from disk.

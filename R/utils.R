@@ -14,20 +14,13 @@ trim_trailing_slashes <- function(x)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_zarr_format()
-### get_zarr_metadata()
 ###
 
 ### Only used in the unit tests at the moment.
 get_zarr_format <- function(zarr_path, s3_client=NULL)
 {
-    get_zarr_metadata(zarr_path, s3_client=s3_client)$zarr_format
-}
-
-### Returns the metadata in a named list.
-get_zarr_metadata <- function(zarr_path, s3_client=NULL)
-{
     stopifnot(isSingleString(zarr_path))
-    Rarr:::.read_array_metadata(zarr_path, s3_client=s3_client)
+    Rarr:::.read_array_metadata(zarr_path, s3_client=s3_client)$zarr_format
 }
 
 
