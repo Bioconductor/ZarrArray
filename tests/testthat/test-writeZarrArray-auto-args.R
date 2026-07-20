@@ -40,12 +40,21 @@ test_that("get/set_writeZarrArray_dump_dir()", {
 
     dir1 <- tempfile("my_zarr_collection_")
     prev_dir <- set_writeZarrArray_dump_dir(dir1)
-    expect_identical(get_writeZarrArray_dump_dir(), dir1)
-    expect_identical(prev_dir, dir0)
+    expect_identical(
+        normalizePath(get_writeZarrArray_dump_dir()), 
+        normalizePath(dir1)
+    )
+    expect_identical(
+        normalizePath(prev_dir), 
+        normalizePath(dir0)
+    )
 
     prev_dir <- set_writeZarrArray_dump_dir()  # reset to default
     expect_identical(get_writeZarrArray_dump_dir(), dir0)
-    expect_identical(prev_dir, dir1)
+    expect_identical(
+        normalizePath(prev_dir), 
+        normalizePath(dir1)
+    )
 })
 
 test_that("get/set_writeZarrArray_chunk_maxlen()", {
