@@ -51,7 +51,7 @@ set_writeZarrArray_dump_dir <- function(dir)
 {
     if (missing(dir)) {
         dir <- file.path(tempdir(), "ZarrArray_realization_dump")
-    } else if (!isSingleString(dir) || dir == "") {
+    } else if (!isSingleString(dir) || !nzchar(dir)) {
         stop(wmsg("'dir' must be a non-empty string specifying the path ",
                   "to a new or existing directory"))
     }

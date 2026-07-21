@@ -243,7 +243,7 @@ read_sparse_zarr_component <- function(zarr_store, group, name,
         if (!zarr_node_is_dataset(zarr_store, data_fullname))
             stop(wmsg("Zarr object \"", data_fullname, "\" is not a dataset."))
     } else {
-        if (!isSingleString(subdata) || subdata == "")
+        if (!isSingleString(subdata) || !nzchar(subdata))
             stop(wmsg("'subdata' must be NULL or a single non-empty string"))
         if (zarr_node_is_dataset(zarr_store, data_fullname))
             stop(wmsg("\"", data_fullname, "\" is a Zarr dataset, not a ",
