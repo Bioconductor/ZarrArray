@@ -140,7 +140,9 @@ read_sparse_zarr_component <- function(zarr_store, group, name,
     if (!is.null(count))
         start <- sequence(count, start)
     index <- list(start)
-    as.vector(Rarr::read_zarr_array(file.path(zarr_store, name), index))
+    vals <- Rarr::read_zarr_array(file.path(zarr_store, name), index)
+    dim(vals) <- NULL
+    vals
 }
 
 ### Returns a numeric vector (integer or double).
