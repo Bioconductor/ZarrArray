@@ -101,6 +101,7 @@ class(seed(ZSM))  # CSC_H5SparseMatrixSeed
 
 dim(ZSM)
 path(ZSM)
+group(ZSM)
 is_sparse(ZSM)  # TRUE
 
 ## Use coercion to load the full dataset into memory:

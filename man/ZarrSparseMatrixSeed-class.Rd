@@ -19,6 +19,7 @@
 \alias{t,CSR_ZarrSparseMatrixSeed-method}
 
 \alias{path,ZarrSparseMatrixSeed-method}
+\alias{group,ZarrSparseMatrixSeed-method}
 \alias{dim,ZarrSparseMatrixSeed-method}
 \alias{dimnames,ZarrSparseMatrixSeed-method}
 \alias{chunkdim,CSC_ZarrSparseMatrixSeed-method}
@@ -60,6 +61,8 @@ ZarrSparseMatrixSeed(zarr_store, group, subdata=NULL,
 ## --- Accessors --------------
 
 \S4method{path}{ZarrSparseMatrixSeed}(object)
+
+\S4method{group}{ZarrSparseMatrixSeed}(object)
 
 \S4method{dim}{ZarrSparseMatrixSeed}(x)
 
@@ -147,6 +150,8 @@ ZarrSparseMatrixSeed(zarr_store, group, subdata=NULL,
   \itemize{
     \item \code{path()}: Returns the path to the Zarr store that contains
           the sparse matrix.
+    \item \code{group()}: Returns the group in the Zarr store where
+          the sparse matrix is located.
     \item \code{dim()}, \code{dimnames()}.
     \item \code{extract_array()}, \code{is_sparse()},
           \code{extract_sparse_array()}, \code{chunkdim()}:

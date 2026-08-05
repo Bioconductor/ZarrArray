@@ -87,13 +87,29 @@ setMethod("path", "ZarrSparseMatrixSeed", function(object) object@zarr_store)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### group() getter
+###
+
+### Does NOT access the file.
+setMethod("group", "ZarrSparseMatrixSeed",
+    function(object)
+    {
+        group <- object@group
+        if (!startsWith(group, "/"))
+            group <- paste0("/", group)
+        group
+    }
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### dim() and dimnames() getters
 ###
-### They access the slot, not the file.
-###
 
+### Does NOT access the file.
 setMethod("dim", "ZarrSparseMatrixSeed", function(x) x@dim)
 
+### Does NOT access the file.
 setMethod("dimnames", "ZarrSparseMatrixSeed",
     function(x) S4Arrays:::simplify_NULL_dimnames(x@dimnames)
 )

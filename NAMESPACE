@@ -54,7 +54,7 @@ exportMethods(
     show, coerce,
 
     ## Methods for generics defined in the BiocGenerics package:
-    path, type,
+    path, group, type,
 
     ## Methods for generics defined in the S4Arrays package:
     extract_array, write_block, is_sparse,
