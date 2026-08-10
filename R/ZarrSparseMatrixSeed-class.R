@@ -92,8 +92,12 @@ setMethod("path", "ZarrSparseMatrixSeed", function(object) object@zarr_store)
 
 ### Does NOT access the file.
 setMethod("group", "ZarrSparseMatrixSeed",
-    function(object)
+    function(object, ...)
     {
+        if (length(list(...)) != 0L)
+            stop(wmsg("the group() method for ZarrSparseMatrixSeed objects ",
+                      "does not accept additional arguments passed thru ",
+                      "the ellipsis (...)"))
         group <- object@group
         if (!startsWith(group, "/"))
             group <- paste0("/", group)
