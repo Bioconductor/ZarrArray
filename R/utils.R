@@ -33,7 +33,7 @@ zarrtype2Rtype <- function(base_type)
     stopifnot(isSingleString(base_type))
     switch(base_type, bool="logical",
                       int=, uint="integer",
-                      float="double",
+                      bfloat=, float="double",
                       #complex="complex",
                       string=, unicode="character",
                       stop(wmsg("unrecognized Zarr base type: ", base_type)))
