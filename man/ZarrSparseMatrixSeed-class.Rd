@@ -62,7 +62,7 @@ ZarrSparseMatrixSeed(zarr_store, group, subdata=NULL,
 
 \S4method{path}{ZarrSparseMatrixSeed}(object)
 
-\S4method{group}{ZarrSparseMatrixSeed}(object)
+\S4method{group}{ZarrSparseMatrixSeed}(object, ...)
 
 \S4method{dim}{ZarrSparseMatrixSeed}(x)
 
@@ -103,6 +103,10 @@ ZarrSparseMatrixSeed(zarr_store, group, subdata=NULL,
   }
   \item{object, x}{
     A ZarrSparseMatrixSeed derivative.
+  }
+  \item{...}{
+    The \code{group()} method for ZarrSparseMatrixSeed objects does not
+    accept additional arguments passed thru the ellipsis.
   }
   \item{index}{
     See \code{?\link[S4Arrays]{extract_array}} in the \pkg{S4Arrays}
