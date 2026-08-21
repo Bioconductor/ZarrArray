@@ -1,6 +1,3 @@
-o Implement ZarrADMatrixSeed and ZarrADMatrix objects (analog to
-  H5ADMatrixSeed and H5ADMatrix objects from the HDF5Array package).
-
 o Does Rarr provide an equivalent of h5ls() for quick inspection of
   a Zarr store? This would be very useful in the context of using
   things like ZarrSparseMatrixSeed() or ZarrSparseMatrix() where the

@@ -97,7 +97,7 @@ class(ZSM)  # ZarrSparseMatrix
 is(ZSM, "DelayedMatrix")  # TRUE
 
 seed(ZSM)
-class(seed(ZSM))  # CSC_H5SparseMatrixSeed
+class(seed(ZSM))  # CSC_ZarrSparseMatrixSeed
 
 dim(ZSM)
 path(ZSM)
