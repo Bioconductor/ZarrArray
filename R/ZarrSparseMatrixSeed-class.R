@@ -230,7 +230,7 @@ read_sparse_zarr_component <- function(zarr_store, group, name,
     if (!zarr_exists(zarr_store, group))
         stop(wmsg("Group \"", group, "\" does not exist in this Zarr store"))
     if (zarr_node_is_dataset(zarr_store, group)) {
-        is_X_or_layer <- group == "/X" || startsWith(group, "/layers/")
+        is_X_or_layer <- group == "X" || startsWith(group, "layers")
         msg1 <- c("\"", group, "\" is a Zarrr dataset, not a Zarr group, ",
                   "so it looks like the matrix that you are trying to ",
                   "access is not stored in a sparse format. Please ",

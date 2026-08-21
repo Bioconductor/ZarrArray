@@ -4,7 +4,7 @@ test_that("ZarrRealizationSink()", {
         sink <- ZarrRealizationSink(c(85, 20, 300), zarr_version=zarr_version)
         expect_true(is(sink, "ZarrRealizationSink"))
         expect_true(is(sink, "RealizationSink"))
-        format <- ZarrArray:::get_zarr_format(paste0(sink@zarr_path, "/"))
+        format <- ZarrArray:::get_zarr_format(sink@zarr_path)
         expect_identical(format, zarr_version)
         seed <- as(sink, "ZarrArraySeed")
         expect_true(is(seed, "ZarrArraySeed"))

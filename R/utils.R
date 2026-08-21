@@ -121,8 +121,6 @@ normarg_zarr_group <- function(name, what1="'name'",
         stop(wmsg(what1, " cannot be the empty string"))
     if (startsWith(name, "/")) {
         name <- sub("^/*", "/", name)  # only keep first leading slash
-    } else {
-        name <- paste0("/", name)
     }
     name
 }
