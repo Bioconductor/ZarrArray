@@ -42,4 +42,6 @@ Collate:
 	writeZarrArray.R
 	ZarrSparseMatrixSeed-class.R
 	ZarrSparseMatrix-class.R
+	ZarrADMatrixSeed-class.R
+	ZarrADMatrix-class.R
 	zzz.R

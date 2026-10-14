@@ -344,7 +344,7 @@ ZarrSparseMatrixSeed <- function(zarr_store, group, subdata=NULL,
     dim <- .get_sparse_matrix_dim(zarr_store, group, dim=dim)
 
     ## Get sparse layout to use ("CSC" or "CSR").
-    ## For consistency with H5SparseMatrixSeed, we flip the notions of rows
+    ## For consistency with ZarrSparseMatrixSeed, we flip the notions of rows
     ## and columns w.r.t. to the AnnData convention. So:
     ## - "compressed sparse row" in the AnnData-style Zarr store
     ##   becomes "compressed sparse column" at the R level,
