@@ -21,12 +21,8 @@ test_that("ZarrArraySeed()", {
     zarr_examples <- system.file(package="Rarr", "extdata", "zarr_examples")
     dirs <- list.dirs(zarr_examples, recursive=FALSE)
     dirs <- dirs[!(basename(dirs) %in% c("metadata", "structured"))]
-    ## Some Zarr datasets are not supported at the moment:
-    ## - The metadata in <zarr_examples>/column-first/vlenUTF8.zarr,
-    ##   <zarr_examples>/compression/zstd_vlen.zarr, and
-    ##   <zarr_examples>/row-first/other.zarr has metadata$datatype$base_type
-    ##   set to "py_object" which ZarrArraySeed() does not handle.
-    EXCLUDE_LIST <- c("vlenUTF8.zarr", "zstd_vlen.zarr", "other.zarr")
+    ## Some example datasets from Rarr might not be supported in ZarrArray yet
+    EXCLUDE_LIST <- NULL
     for (dir in dirs) {
         zarr_paths <- list.dirs(dir, recursive=FALSE)
         zarr_paths <- zarr_paths[!(basename(zarr_paths) %in% EXCLUDE_LIST)]
