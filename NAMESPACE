@@ -21,7 +21,10 @@ exportClasses(
     ZarrArray, ZarrMatrix,
     ZarrRealizationSink,
     ZarrSparseMatrixSeed, CSC_ZarrSparseMatrixSeed, CSR_ZarrSparseMatrixSeed,
-    ZarrSparseMatrix
+    ZarrSparseMatrix,
+    ZarrADMatrixSeed,
+    Dense_ZarrADMatrixSeed, CSC_ZarrADMatrixSeed, CSR_ZarrADMatrixSeed,
+    ZarrADMatrix
 )
 
 
@@ -31,6 +34,8 @@ exportClasses(
 
 S3method(t, CSC_ZarrSparseMatrixSeed)
 S3method(t, CSR_ZarrSparseMatrixSeed)
+S3method(t, CSC_ZarrADMatrixSeed)
+S3method(t, CSR_ZarrADMatrixSeed)
 
 ### We also export them thru the export() directive so that (a) they can be
 ### called directly, (b) tab-completion on the name of the generic shows them,
@@ -38,7 +43,9 @@ S3method(t, CSR_ZarrSparseMatrixSeed)
 
 export(
     t.CSC_ZarrSparseMatrixSeed,
-    t.CSR_ZarrSparseMatrixSeed
+    t.CSR_ZarrSparseMatrixSeed,
+    t.CSC_ZarrADMatrixSeed,
+    t.CSR_ZarrADMatrixSeed
 )
 
 
@@ -93,6 +100,11 @@ export(
     ZarrSparseMatrixSeed,
 
     ## ZarrSparseMatrix-class.R:
-    ZarrSparseMatrix
-)
+    ZarrSparseMatrix,
 
+    ## ZarrADMatrixSeed-class.R
+    ZarrADMatrixSeed,
+    
+    ## ZarrADMatrix-class.R
+    ZarrADMatrix
+)
