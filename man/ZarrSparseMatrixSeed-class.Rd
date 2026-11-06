@@ -55,7 +55,7 @@
 \usage{
 ## --- Constructor function ---
 
-ZarrSparseMatrixSeed(zarr_store, group, subdata=NULL,
+ZarrSparseMatrixSeed(zarr_store, group="/", subdata=NULL,
                      dim=NULL, sparse.layout=NULL)
 
 ## --- Accessors --------------

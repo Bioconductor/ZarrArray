@@ -22,7 +22,7 @@
 
 \usage{
 ## Constructor function:
-ZarrSparseMatrix(zarr_store, group)
+ZarrSparseMatrix(zarr_store, group="/")
 }
 
 \arguments{

@@ -35,6 +35,7 @@ setClass("ZarrSparseMatrixSeed",
         dimnames="list"
     ),
     prototype(
+        group="/",
         dimnames=list(NULL, NULL)
     )
 )
@@ -150,17 +151,28 @@ setMethod("nzcount", "ZarrSparseMatrixSeed",
 ### Low-level helper for reading sparse Zarr data
 ###
 
+### 'start' and 'count' must be both NULL or both non-NULL.
+.make_index_from_start_count <- function(start=NULL, count=NULL)
+{
+    if (is.null(start)) {
+        stopifnot(is.null(count))
+        return(NULL)
+    }
+    stopifnot(is.numeric(start), is.integer(count),
+              length(start) == length(count))
+    #sequence(count, start)  # breaks if 'start' contains values >= 2^31
+    ## Equivalent to 'sequence(count, start)' but still works if 'start'
+    ## contains values >= 2^31.
+    sequence(count) + rep.int(start, count) - 1L
+}
+
 ### All the "sparse Zarr" components are monodimensional.
 read_sparse_zarr_component <- function(zarr_store, group, name,
                                        start=NULL, count=NULL)
 {
     name <- file.path(group, name)
-    if (is.null(start))
-        start <- seq_len(zarrlength(zarr_store, name))
-    if (!is.null(count))
-        start <- sequence(count, start)
-    index <- list(start)
-    ans <- Rarr::read_zarr_array(file.path(zarr_store, name), index)
+    index <- .make_index_from_start_count(start, count)
+    ans <- Rarr::read_zarr_array(file.path(zarr_store, name), list(index))
     dim(ans) <- NULL
     ans
 }
@@ -327,7 +339,7 @@ read_sparse_zarr_component <- function(zarr_store, group, name,
 
 ### Returns a ZarrSparseMatrixSeed derivative (can be either a
 ### CSC_ZarrSparseMatrixSeed or CSR_ZarrSparseMatrixSeed object).
-ZarrSparseMatrixSeed <- function(zarr_store, group, subdata=NULL,
+ZarrSparseMatrixSeed <- function(zarr_store, group="/", subdata=NULL,
                                  dim=NULL, sparse.layout=NULL)
 {
     ## Check 'zarr_store', 'group', and 'subdata'.

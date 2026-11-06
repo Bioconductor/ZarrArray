@@ -20,7 +20,7 @@ setMethod("DelayedArray", "ZarrSparseMatrixSeed",
 
 ### Works directly on a ZarrSparseMatrixSeed derivative, in which case it must
 ### be called with a single argument.
-ZarrSparseMatrix <- function(zarr_store, group)
+ZarrSparseMatrix <- function(zarr_store, group="/")
 {
     if (is(zarr_store, "ZarrSparseMatrixSeed")) {
         if (!missing(group))
