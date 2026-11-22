@@ -99,7 +99,7 @@ create_empty_zarr_array2 <-
 ### TODO: Should this go in a dedicated file e.g. ZarrSparseMatrixSeed-utils.R?
 ###
 
-### Modelled after normarg_h5_filepath() in h5mread/R/utils.R
+### Modeled after normarg_h5_filepath() in h5mread/R/utils.R
 normarg_zarr_store <- function(zarr_store, what1="'zarr_store'",
                                            what2="the dataset")
 {
@@ -109,32 +109,40 @@ normarg_zarr_store <- function(zarr_store, what1="'zarr_store'",
     file_path_as_absolute(zarr_store)  # return absolute path in canonical form
 }
 
-### Modelled after normarg_h5_name() in h5mread/R/utils.R
-normarg_zarr_group <- function(name, what1="'name'",
-                                     what2="the name of a dataset",
-                                     what3="")
+### Modeled after normarg_h5_name() in h5mread/R/utils.R
+normarg_zarr_group <- function(group, what1="'group'",
+                                      what2="the name of the group",
+                                      what3="")
 {
-    if (!isSingleString(name))
+    if (!isSingleString(group))
         stop(wmsg(what1, " must be a single string specifying ",
                   what2, " in the Zarr store", what3))
-    if (name == "")
-        stop(wmsg(what1, " cannot be the empty string"))
-    if (startsWith(name, "/")) {
-        name <- sub("^/*", "/", name)  # only keep first leading slash
+    if (startsWith(group, "/")) {
+        group <- sub("^/*", "/", group)  # only keep first leading slash
     } else {
-        name <- paste0("/", name)
+        group <- paste0("/", group)
     }
-    name
+    group
 }
 
-zarr_exists <- function(zarr_store, name)
+.form_zarr_path <- function(zarr_store, name="")
 {
-    dir.exists(file.path(zarr_store, name))
+    stopifnot(isSingleString(name))
+    if (startsWith(name, "/"))
+        name <- substr(name, 2L, nchar(name))
+    if (!nzchar(name))
+        return(zarr_store)
+    file.path(zarr_store, name)
 }
 
-.zarr_node_type <- function(zarr_store, name)
+zarr_exists <- function(zarr_store, name="")
 {
-    zarr_path <- file.path(zarr_store, name)
+    dir.exists(.form_zarr_path(zarr_store, name=name))
+}
+
+.zarr_node_type <- function(zarr_store, name="")
+{
+    zarr_path <- .form_zarr_path(zarr_store, name=name)
     if (file.exists(file.path(zarr_path, ".zarray")))
         return("array")
     if (file.exists(file.path(zarr_path, ".zgroup")))
@@ -144,49 +152,58 @@ zarr_exists <- function(zarr_store, name)
     node_type
 }
 
-zarr_node_is_dataset <- function(zarr_store, name)
+zarr_node_is_dataset <- function(zarr_store, name="")
 {
-    .zarr_node_type(zarr_store, name) == "array"
+    .zarr_node_type(zarr_store, name=name) == "array"
 }
 
-zarr_node_is_group <- function(zarr_store, name)
+zarr_node_is_group <- function(zarr_store, name="")
 {
-    .zarr_node_type(zarr_store, name) == "group"
+    .zarr_node_type(zarr_store, name=name) == "group"
 }
 
-### Copied and adapted from h5mread/R/h5dim.R
-dim_as_integer <- function(dim, zarr_store, name, what="Zarr dataset")
+### Modeled after h5mread::stop_if_big_h5_dimensions().
+stop_if_big_zarr_dimensions <- function(dim, zarr_store, name="",
+                                        of_what="Zarr dataset",
+                                        about_what=of_what)
 {
-    if (is.integer(dim))
-        return(dim)
-    if (any(dim > .Machine$integer.max)) {
-        dim_in1string <- paste0(dim, collapse=" x ")
-        stop(wmsg("Dimensions of ", what, " are too big: ", dim_in1string),
-             "\n\n  ",
-             wmsg("(This error is about Zarr dataset '", name, "' ",
-                  "from Zarr store '", zarr_store, "'.)"),
-             "\n\n  ",
-             wmsg("Please note that the ZarrArray package only ",
-                  "supports datasets where each dimension is ",
-                  "<= '.Machine$integer.max' (= 2**31 - 1)."))
+    stopifnot(is.numeric(dim), isSingleString(zarr_store), isSingleString(name))
+    if (all(dim <= .Machine$integer.max))
+        return(invisible(NULL))
+    dim_in1string <- paste0(dim, collapse=" x ")
+    supports_what <- of_what
+    if (endsWith(supports_what, "matrix")) {
+        supports_what <- sub("matrix$", "matrices", supports_what)
+    } else if (!endsWith(supports_what, "s")) {
+        supports_what <- paste0(supports_what, "s")
     }
-    as.integer(dim)
+    stop(wmsg("Dimensions of ", of_what, " are too big: ", dim_in1string),
+         "\n\n  ",
+         wmsg("(This error is about ", about_what, " '", name, "' ",
+              "from Zarr store '", zarr_store, "'.)"),
+         "\n\n  ",
+         wmsg("Please note that the ZarrArray package only ",
+              "supports ", supports_what, " that have all their ",
+              "dimensions <= 2^31-1 (= .Machine$integer.max)."))
 }
 
-.zarrdim <- function(zarr_store, name, as.integer=TRUE)
+.zarrdim <- function(zarr_store, name="", as.integer=TRUE)
 {
-    metadata <- Rarr:::.read_array_metadata(file.path(zarr_store, name))
+    zarr_path <- .form_zarr_path(zarr_store, name=name)
+    metadata <- Rarr:::.read_array_metadata(zarr_path)
     dim <- unlist(metadata$shape, use.names=FALSE)
-    if (as.integer)
-        dim <- dim_as_integer(dim, zarr_store, name)
+    if (as.integer) {
+        stop_if_big_zarr_dimensions(dim, zarr_store, name)
+        dim <- as.integer(dim)
+    }
     dim
 }
 
 ### Length of a one-dimensional Zarr dataset.
-### Return the length as a single integer (if < 2^31) or numeric (if >= 2^31).
-zarrlength <- function(zarr_store, name)
+### Returns the length as a single integer (if < 2^31) or numeric (if >= 2^31).
+zarrlength <- function(zarr_store, name="")
 {
-    len <- .zarrdim(zarr_store, name, as.integer=FALSE)
+    len <- .zarrdim(zarr_store, name=name, as.integer=FALSE)
     stopifnot(length(len) == 1L)
     len
 }

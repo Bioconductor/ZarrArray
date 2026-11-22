@@ -37,19 +37,21 @@
 
 \description{
   ZarrSparseMatrixSeed is a low-level helper class for representing
-  an on-disk sparse matrix stored in a Zarr store. The data in such
-  matrix is typically represented as a group of three monodimensional
-  Zarr datasets (data/indices/indptr) that altogether achieve the
-  CSC or CSR layout commonly used to organize sparse matrix data.
-
-  ZarrSparseMatrixSeed is a virtual class with two concrete subclasses:
-  CSC_ZarrSparseMatrixSeed for the \emph{Compressed Sparse Column} layout,
-  and CSR_ZarrSparseMatrixSeed for the \emph{Compressed Sparse Row} layout.
-
-  Note that ZarrSparseMatrixSeed objects are not intended to be used
-  directly. Most end users will typically create and manipulate a
+  a Zarr-based sparse matrix. It is not intended to be used directly.
+  Instead, most end users will typically create and manipulate a
   higher-level \link{ZarrSparseMatrix} object instead.
+
   See \code{?\link{ZarrSparseMatrix}} for more information.
+
+  In order to be accessible via the \code{ZarrSparseMatrixSeed()} constructor
+  function, the data on disk must be represented as a group of three
+  monodimensional Zarr datasets (data/indices/indptr) that altogether
+  achieve the CSC or CSR layout commonly used to organize sparse matrix data.
+
+  Note that ZarrSparseMatrixSeed is a virtual class with two concrete
+  subclasses: CSC_ZarrSparseMatrixSeed for the \emph{Compressed Sparse Column}
+  layout, and CSR_ZarrSparseMatrixSeed for the \emph{Compressed Sparse Row}
+  layout.
 }
 
 \usage{

@@ -9,7 +9,7 @@ test_that("ZarrArraySeed()", {
 
     expect_error(ZarrArraySeed(matrix(11:70, ncol=5)),
                  regexp="must be a single string")
-    zarr_path <- tempfile()
+    zarr_path <- tempfile(fileext=".zarr")
     expect_error(ZarrArraySeed(zarr_path),
                  regexp="must be the path to an existing directory")
     file.create(zarr_path)
@@ -21,7 +21,7 @@ test_that("ZarrArraySeed()", {
     zarr_examples <- system.file(package="Rarr", "extdata", "zarr_examples")
     dirs <- list.dirs(zarr_examples, recursive=FALSE)
     dirs <- dirs[!(basename(dirs) %in% c("metadata", "structured"))]
-    ## Some example datasets from Rarr might not be supported in ZarrArray yet
+    ## Some example datasets from Rarr might not be supported in ZarrArray yet.
     EXCLUDE_LIST <- NULL
     for (dir in dirs) {
         zarr_paths <- list.dirs(dir, recursive=FALSE)

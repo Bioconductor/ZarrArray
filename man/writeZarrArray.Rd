@@ -33,16 +33,18 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
   \item{x}{
     The array-like object to write to disk in Zarr format.
 
-    If \code{x} is a \link[DelayedArray]{DelayedArray} object or derivative,
-    then \code{writeZarrArray()} \emph{realizes} it on disk, that is, all
-    the delayed operations carried by the object are executed on the
-    fly while the object is written to disk.
-    See "On-disk realization of a DelayedArray object as a Zarr dataset"
-    section below for more information.
+    If \code{x} is a \link[DelayedArray]{DelayedMatrix} object that carries
+    delayed operations, then \code{writeZarrArray()} will \emph{realize}
+    them \emph{on the fly} and \emph{block by block} right before writing
+    each block of data to disk.
+
+    See "On-disk Zarr realization of a DelayedArray object" section below
+    for more information.
   }
   \item{zarr_path}{
     \code{NULL} or the path (as a single string) to the directory where
     to write the data in Zarr format.
+
     If \code{NULL}, then \code{writeZarrArray()} will obtain this path
     by calling \code{\link{get_writeZarrArray_auto_path}()} internally.
     See \code{?\link{writeZarrArray_auto_args}} for more information.
@@ -73,8 +75,8 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
 
 \details{
   \code{writeZarrArray()} leverages lower-level functionality implemented
-  in the \pkg{Rarr} package like \code{create_empty_zarr_array()} and
-  \code{update_zarr_array()}.
+  in the \pkg{Rarr} package like \code{Rarr::create_empty_zarr_array()}
+  and \code{Rarr::update_zarr_array()}.
 
   Please note that, depending on the size of the data to write to disk
   and the performance of the disk, \code{writeZarrArray()} can take a
@@ -82,8 +84,8 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
 }
 
 \value{
-  A \link{ZarrArray} object that points to the newly written Zarr dataset
-  on disk.
+  A \link{ZarrArray} object that points to the newly written Zarr
+  dataset on disk.
 
   IMPORTANT NOTE: The dimnames on \code{x} are NOT propagated to the
   returned \link{ZarrArray} object at the moment! This is a temporary
@@ -91,11 +93,11 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
   \pkg{ZarrArray} package.
 }
 
-\section{On-disk realization of a DelayedArray object as a Zarr dataset}{
+\section{On-disk Zarr realization of a DelayedArray object}{
   When passed a \link[DelayedArray]{DelayedArray} object,
-  \code{writeZarrArray()} \emph{realizes} it on disk, that is, all the
-  delayed operations carried by the object are executed on the fly while
-  the object is written to disk.
+  \code{writeZarrArray()} (and \code{\link{writeZarrSparseMatrix}()})
+  \emph{realizes} it on disk, that is, all the delayed operations carried
+  by the object are executed on the fly while the object is written to disk.
   This uses a block-processing strategy so that the full object is not
   realized at once in memory. Instead the object is processed block by block
   i.e. the blocks are realized in memory and written to disk one at a time.
@@ -110,10 +112,14 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
 
 \seealso{
   \itemize{
-    \item \link{writeZarrArray_auto_args} to control \code{writeZarrArray}'s
-    \emph{automatic argument values} like \code{zarr_path} and \code{chunkdim}.
-
     \item \link{ZarrArray} objects.
+
+    \item \link{writeZarrArray_auto_args} to control \code{writeZarrArray}'s
+          \emph{automatic argument values} like \code{zarr_path} and
+          \code{chunkdim}.
+
+    \item \link{writeZarrSparseMatrix} to realize a matrix-like object
+          (typically sparse) as a \link{ZarrSparseMatrix} object.
   }
 }
 
@@ -123,8 +129,8 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
 ## ---------------------------------------------------------------------
 m0 <- matrix(runif(180, min=-1), ncol=9)
 
-path <- tempfile(fileext=".zarr")
-M1 <- writeZarrArray(m0, path)
+zarr_path <- tempfile(fileext=".zarr")
+M1 <- writeZarrArray(m0, zarr_path)
 M1  # ZarrMatrix object
 
 path(M1)
@@ -154,7 +160,7 @@ h5ls(h5_path)
 
 ## Let's convert the M1 dataset to Zarr:
 M1 <- HDF5Array(h5_path, "M1")
-zarr_path <- file.path(tempdir(), "M1.zarr")
+zarr_path <- tempfile(fileext=".zarr")
 writeZarrArray(M1, zarr_path)
 
 ## Note that writeZarrArray() uses a block-processing strategy so that

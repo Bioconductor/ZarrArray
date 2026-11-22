@@ -20,6 +20,7 @@ setMethod("DelayedArray", "ZarrSparseMatrixSeed",
 
 ### Works directly on a ZarrSparseMatrixSeed derivative, in which case it must
 ### be called with a single argument.
+### TODO: Add 'sparse.layout' argument and pass it to ZarrSparseMatrixSeed().
 ZarrSparseMatrix <- function(zarr_store, group="/")
 {
     if (is(zarr_store, "ZarrSparseMatrixSeed")) {

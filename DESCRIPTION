@@ -28,13 +28,14 @@ Authors@R: c(
 		email="levi.waldron@sph.cuny.edu",
 		comment=c(ORCID="0000-0003-2725-0694")))
 Depends: R (>= 3.4), methods, SparseArray, DelayedArray (>= 0.39.4)
-Imports: stats, tools, BiocGenerics (>= 0.59.12), S4Vectors, IRanges,
-	S4Arrays, Rarr (>= 2.1.9)
+Imports: stats, tools, jsonlite, BiocGenerics (>= 0.59.12), S4Vectors, IRanges,
+	S4Arrays (>= 1.13.3), Rarr (>= 2.1.9)
 Suggests: paws.storage, HDF5Array, testthat, anndataR,
 	knitr, rmarkdown, BiocStyle
 VignetteBuilder: knitr
 Collate:
 	utils.R
+	append_zarr_array.R
 	options.R
 	ZarrArraySeed-class.R
 	ZarrArray-class.R
@@ -42,4 +43,5 @@ Collate:
 	writeZarrArray.R
 	ZarrSparseMatrixSeed-class.R
 	ZarrSparseMatrix-class.R
+	writeZarrSparseMatrix.R
 	zzz.R

@@ -2,6 +2,8 @@ import(methods)
 importFrom(stats, setNames)
 importFrom(tools, file_path_as_absolute)
 
+importFrom(jsonlite, write_json)
+
 import(BiocGenerics)
 import(S4Vectors)
 import(IRanges)
@@ -9,7 +11,7 @@ import(S4Arrays)
 import(SparseArray)
 import(DelayedArray)
 importFrom(Rarr, read_zarr_array, create_empty_zarr_array, update_zarr_array,
-                 read_zarr_attributes)
+                 read_zarr_attributes, write_zarr_group, write_zarr_array)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,7 +23,8 @@ exportClasses(
     ZarrArray, ZarrMatrix,
     ZarrRealizationSink,
     ZarrSparseMatrixSeed, CSC_ZarrSparseMatrixSeed, CSR_ZarrSparseMatrixSeed,
-    ZarrSparseMatrix
+    ZarrSparseMatrix,
+    ZarrSparseMatrixRealizationSink
 )
 
 
@@ -93,6 +96,9 @@ export(
     ZarrSparseMatrixSeed,
 
     ## ZarrSparseMatrix-class.R:
-    ZarrSparseMatrix
+    ZarrSparseMatrix,
+
+    ## writeZarrSparseMatrix.R:
+    ZarrSparseMatrixRealizationSink, writeZarrSparseMatrix
 )
 

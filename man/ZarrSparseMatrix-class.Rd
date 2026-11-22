@@ -9,12 +9,17 @@
 
 \alias{nzcount,ZarrSparseMatrix-method}
 
-\title{HDF5 sparse matrices as DelayedMatrix objects}
+\title{Zarr-based sparse matrices as DelayedMatrix objects}
 
 \description{
-  The ZarrSparseMatrix class is a \link[DelayedArray]{DelayedMatrix} subclass
-  for representing and operating on a Zarr-based sparse matrix stored in
-  CSR/CSC/Yale format.
+  A ZarrSparseMatrix object is a \link[DelayedArray]{DelayedMatrix}
+  derivative that represents a Zarr-based sparse matrix. The object
+  allows easy and intuitive matrix-like manipulation of a sparse matrix
+  stored on disk in "Zarr sparse" format.
+
+  Note that the "Zarr sparse" format follows the traditional CSR/CSC/Yale
+  convention of using several Zarr datasets grouped together inside a Zarr
+  group node to organize the sparse data on disk.
 
   All the operations available for \link[DelayedArray]{DelayedMatrix}
   objects work on ZarrSparseMatrix objects.
@@ -27,13 +32,19 @@ ZarrSparseMatrix(zarr_store, group="/")
 
 \arguments{
   \item{zarr_store}{
-    The path (as a single string) to the Zarr store where the sparse matrix
-    is located.
+    The path (as a single string) to the "Zarr store" (i.e. the top-level
+    Zarr directory) under which the sparse matrix is located.
   }
   \item{group}{
     The name of the group node in the Zarr store where the sparse matrix
     is located.
   }
+}
+
+\details{
+  The implementation of the ZarrSparseMatrix class leverages lower-level
+  functionality implemented in the \pkg{Rarr} package like
+  \code{Rarr::read_zarr_array()} and \code{Rarr::read_zarr_attributes()}.
 }
 
 \value{
@@ -64,13 +75,21 @@ ZarrSparseMatrix(zarr_store, group="/")
 ## BASIC EXAMPLE
 ## ---------------------------------------------------------------------
 
-## The anndataR package contains 3 AnnData-style ondisk data structures
-## that contain the same data stored in different formats:
-##   1. example.h5ad:        HDF5-based AnnData-style data structure;
-##   2. example_v2.zarr.zip: Zarr-v2-based AnnData-style data structure;
-##   3. example_v3.zarr.zip: Zarr-v3-based AnnData-style data structure.
+## The anndataR package contains 3 AnnData-style files that contain the
+## same data stored in 3 different formats:
+library(anndataR)
+anndataR_extdata <- system.file(package="anndataR", "extdata")
+list.files(anndataR_extdata)
+
+## The 3 files are:
+##   1. example.h5ad:        HDF5-based AnnData-style file;
+##   2. example_v2.zarr.zip: Zarr-v2-based AnnData-style file;
+##   3. example_v3.zarr.zip: Zarr-v3-based AnnData-style file.
 ##
-## In each data structure the following groups contain sparse matrices:
+## Each file contains a collection of datasets organized in a complex
+## hierarchy of groups and subgroups that follow the AnnData convention.
+## The following groups in each of these files represent a sparse matrix
+## stored in CSR/CSC/Yale format:
 ##   group                      dim  type
 ##   /X                    100 x 50  double
 ##   /layers/counts        100 x 50  double
@@ -78,13 +97,14 @@ ZarrSparseMatrix(zarr_store, group="/")
 ##   /obsp/connectivities   50 x 50  double
 ##   /obsp/distances        50 x 50  double
 ##   /uns/Sparse1D           6 x  1  integer
-
-library(anndataR)
+## Each of these groups contains a small standardized set of datasets
+## that achieves efficient representation of the sparse data, and can
+## therefore be represented as a ZarrSparseMatrix object in R.
 
 ## Unzip example_v3.zarr.zip:
 zad_basename <- "example_v3.zarr"  # zad: Zarr-based AnnData
 zad_zip <- paste0(zad_basename, ".zip")
-zad_zip_path <- system.file(package="anndataR", "extdata", zad_zip)
+zad_zip_path <- file.path(anndataR_extdata, zad_zip)
 exdir <- tempdir()
 unzip(zad_zip_path, exdir=exdir)
 zad_store <- file.path(exdir, zad_basename)

@@ -31,19 +31,6 @@ setMethod("type", "ZarrRealizationSink", function(x) x@type)
 
 setMethod("chunkdim", "ZarrRealizationSink", function(x) x@chunkdim)
 
-.normarg_dim <- function(dim)
-{
-    if (!is.numeric(dim))
-        stop(wmsg("'dim' must be an integer vector"))
-    if (length(dim) == 0L)
-        stop(wmsg("'dim' cannot be an empty vector"))
-    if (!is.integer(dim))
-        dim <- as.integer(dim)
-    if (S4Vectors:::anyMissingOrOutside(dim, 0L))
-        stop(wmsg("'dim' cannot contain negative or NA values"))
-    dim
-}
-
 .normarg_chunkdim <- function(chunkdim, dim)
 {
     if (!(is.numeric(chunkdim) || is.logical(chunkdim) && all(is.na(chunkdim))))
@@ -79,7 +66,7 @@ ZarrRealizationSink <- function(dim, dimnames=NULL, type="double",
                                 zarr_path=NULL, chunkdim=NULL,
                                 fill_value=NULL, nchar=NULL, zarr_version=3)
 {
-    dim <- .normarg_dim(dim)
+    dim <- S4Arrays:::normarg_dim(dim)
     if (!is.null(dimnames))
         warning(wmsg("'dimnames' is not supported and will be ignored"),
                 immediate.=TRUE)

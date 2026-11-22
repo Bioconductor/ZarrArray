@@ -3,7 +3,7 @@ title: "_ZarrArray_ overview"
 author:
 - name: Hervé Pagès
   affiliation: CUNY Graduate School of Public Health and Health Policy, New York, NY USA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 3 April 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 22 November 2026"
 package: ZarrArray
 vignette: |
   %\VignetteIndexEntry{ZarrArray overview}
@@ -26,12 +26,25 @@ library(BiocStyle)
 the `r Biocpkg("Rarr")` package to bring Zarr datasets in R as DelayedArray
 objects.
 
+The package implements two main classes:
+
+- The ZarrArray class: ZarrArray objects are array-like objects that
+  represent a conventional (i.e. _dense_) Zarr datasets in R.
+
+- The ZarrSparseMatrix class: ZarrSparseMatrix objects are matrix-like
+  objects that represent _sparse_ Zarr datasets in R.
+
+Both classes extend the DelayedArray class from the `r Biocpkg("DelayedArray")`
+package. This means that ZarrArray and ZarrSparseMatrix objects allow easy
+and intuitive R-style array- and matrix-like manipulation of on-disk Zarr
+datasets.
+
 
 # Install and load the package
 
 
 Like any other Bioconductor package, `r Biocpkg("ZarrArray")` should
-always be installed with `BiocManager::install()`:
+_always_ be installed with `BiocManager::install()`:
 ```{r install, eval=FALSE}
 if (!require("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
@@ -46,15 +59,15 @@ library(ZarrArray)
 
 # ZarrArray objects
 
-
-The main class in the package is the ZarrArray class. A ZarrArray
-object is an array-like object that represents a Zarr dataset in R.
+The ZarrArray class is a DelayedArray extension for representing and
+operating on a conventional (i.e. _dense_) Zarr dataset.
+Please check its man page (with `?ZarrArray`) for more information.
 
 ## Construction
 
-To create a ZarrArray object, simply call the `ZarrArray()` constructor
+To construct a ZarrArray object, simply call the `ZarrArray()` constructor
 function on the path to a Zarr dataset:
-```{r construction}
+```{r ZarrArray_construction}
 zarr_path <- system.file(package="Rarr", "extdata",
                          "zarr_examples", "column-first", "int32.zarr")
 A <- ZarrArray(zarr_path)
@@ -63,21 +76,21 @@ A
 
 ## Array and matrix operations
 
-Note that ZarrArray objects are DelayedArray derivatives and
-therefore support all operations (delayed or block-processed)
+Note that ZarrArray objects are DelayedArray derivatives, and,
+therefore, support all operations (delayed or block-processed)
 supported by DelayedArray objects:
-```{r check_class}
+```{r check_ZarrArray_class}
 class(A)
 
 is(A, "DelayedArray")
 ```
 
 This allows ZarrArray objects to "look and feel" like ordinary arrays or
-matrices in R by mimicking their behavior. In particular, ZarrArray objects
+matrices in R, by mimicking their behavior. In particular, ZarrArray objects
 suppport most of the "standard array API" defined in base R like `dim()`,
 `length()`, `dimnames()`, `[`, `aperm()`, `max()`, `sum()`, arithmetic and
 comparison operations, math functions, etc...
-```{r basic_ops}
+```{r ZarrArray_basic_ops}
 dim(A)
 length(A)
 A[1:5, , 1]
@@ -100,18 +113,16 @@ package like `rowMaxs()`, `colVars()`, etc...
 
 Other operations are supported that are specific to DelayedArray objects
 and their derivatives:
-```{r other_ops}
+```{r ZarrArray_other_ops}
 path(A)
 type(A)
 chunkdim(A)
 a <- as.array(A)
 ```
 
-See `?ZarrArray` for more information.
+See `?ZarrArray` for more information and examples.
 
-
-# Write an array-like object to disk in Zarr format
-
+## Write an array-like object to disk in Zarr format
 
 The `writeZarrArray()` function can be used to write an array-like
 object to disk in Zarr format.
@@ -126,12 +137,163 @@ Or, we can transform A and then write it back to disk:
 ```{r writeZarrArray_2}
 path2 <- tempfile(fileext=".zarr")
 A2 <- sqrt(t(A[ , , 1]) + 1)  # all these operations are delayed
-writeZarrArray(A2, path2)  # realizes the delayed operations block by block
+
+## This will realize the delayed operations carried by 'A2' block by block:
+writeZarrArray(A2, path2)
 ```
 
 Note that `writeZarrArray()` leverages lower-level functionality implemented
-in the `r Biocpkg("Rarr")` package like `create_empty_zarr_array()`
-and `update_zarr_array()`. See `?writeZarrArray` for more information.
+in the `r Biocpkg("Rarr")` package like `Rarr::create_empty_zarr_array()`
+and `Rarr::update_zarr_array()`. See `?writeZarrArray` for more information.
+
+
+# ZarrSparseMatrix objects
+
+The ZarrSparseMatrix class is a DelayedMatrix extension for representing and
+operating on a sparse matrix stored on disk in "Zarr sparse" format.
+
+For the examples in this section, we're going to use a zipped AnnData-style
+file from the `r Biocpkg("anndataR")` package that contains a collection of
+Zarr-based sparse matrices.
+
+```{r install_and_load_anndataR, message=FALSE}
+if (!require("anndataR", quietly=TRUE))
+    BiocManager::install("anndataR")
+
+library(anndataR)
+anndataR_extdata <- system.file(package="anndataR", "extdata")
+list.files(anndataR_extdata)  # 3 files
+```
+
+Please refer to the Examples section of the ZarrSparseMatrix man page (with
+`?ZarrSparseMatrix`) for a quick overview of what's in these files.
+
+The file that we're interested in is `example_v3.zarr.zip`, but we need
+to unzip it first:
+```{r unzip_example_v3.zarr.zip}
+zad_basename <- "example_v3.zarr"  # zad: Zarr-based AnnData
+zad_zip <- paste0(zad_basename, ".zip")
+zad_zip_path <- file.path(anndataR_extdata, zad_zip)
+exdir <- tempdir()
+unzip(zad_zip_path, exdir=exdir)
+zad_store <- file.path(exdir, zad_basename)
+```
+
+## Construction
+
+To construct a ZarrSparseMatrix object, simply call the `ZarrSparseMatrix()`
+constructor function specifying the path to the Zarr store and group where
+the sparse matrix is located:
+```{r ZarrSparseMatrix_construction}
+ZSM <- ZarrSparseMatrix(zad_store, "/X")
+ZSM
+```
+
+## Matrix operations
+
+Like ZarrArray objects, ZarrSparseMatrix objects are also DelayedArray
+derivatives, and, therefore, also support all operations (delayed or
+block-processed) supported by DelayedArray objects:
+```{r check_ZarrSparseMatrix_class}
+class(ZSM)
+
+is(ZSM, "DelayedMatrix")
+
+## The DelayedMatrix class extends the DelayedArray class:
+is(ZSM, "DelayedArray")
+```
+
+ZarrSparseMatrix objects to "look and feel" like ordinary matrices in R:
+```{r ZarrSparseMatrix_basic_ops}
+dim(ZSM)
+length(ZSM)
+
+ZSM[1:5, 1:6]
+ZSM[1:5 , 50]
+t(ZSM)
+
+max(ZSM)
+sum(ZSM)
+
+ZSM - 0.5
+ZSM^3
+ZSM == 0L
+sqrt(ZSM)
+
+head(rowSums(ZSM))
+head(rowMaxs(ZSM))
+head(colVars(ZSM))
+```
+
+## Other operations
+
+Other operations are supported that are specific to DelayedArray objects
+and their derivatives:
+```{r ZarrSparseMatrix_other_ops}
+path(ZSM)
+group(ZSM)
+
+type(ZSM)
+chunkdim(ZSM)
+is_sparse(ZSM)
+zsm <- as.matrix(ZSM)
+```
+
+See `?ZarrSparseMatrix` for more information and examples.
+
+## Write a matrix-like object as a Zarr-based sparse matrix
+
+The `writeZarrSparseMatrix()` function can be used to write a matrix-like
+object (typically sparse) to disk in "Zarr sparse" format:
+```{r writeZarrSparseMatrix_1}
+m0 <- matrix(0L, nrow=25, ncol=12,
+             dimnames=list(letters[1:25], LETTERS[1:12]))
+m0[cbind(2:24, c(12:1, 2:12))] <- 100L + sample(55L, 23, replace=TRUE)
+
+zarr_store <- tempfile(fileext=".zarr")
+ZSM0 <- writeZarrSparseMatrix(m0, zarr_store, group="/X0")
+ZSM0
+```
+
+`path()` and `group()`:
+```{r path_and_group_of_ZarrSparseMatrix}
+path(ZSM0)
+group(ZSM0)
+```
+
+The object passed to `writeZarrSparseMatrix()` can be a matrix-like object of
+any sort. For example, it can be a dgCMatrix object from the `r Biocpkg("Matrix")`
+package:
+```{r writeZarrSparseMatrix_2}
+library(Matrix)
+dgc <- as(m0, "dgCMatrix")
+ZSM1 <- writeZarrSparseMatrix(dgc, zarr_store, group="/X1")
+ZSM1
+
+path(ZSM1)
+group(ZSM1)
+```
+
+or it can be a DelayedMatrix object:
+```{r writeZarrSparseMatrix_3}
+SM2 <- log(ZSM1[ , 7:12] + 1)  # all these operations are delayed
+is_sparse(SM2)
+
+## This will realize the delayed operations carried by 'SM2' block by block:
+ZSM2 <- writeZarrSparseMatrix(SM2, zarr_store, group="/X2")
+ZSM2
+
+path(ZSM2)
+group(ZSM2)
+```
+
+Etc...
+
+Note that `writeZarrSparseMatrix()` leverages lower-level functionality
+implemented in the `r Biocpkg("Rarr")` package like
+`Rarr::write_zarr_group()`, `Rarr::create_empty_zarr_array()`,
+and `Rarr::update_zarr_array()`. See `?writeZarrSparseMatrix` for more
+information.
 
 
 # Session information

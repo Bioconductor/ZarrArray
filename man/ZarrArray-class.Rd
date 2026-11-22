@@ -19,7 +19,8 @@
 
 \description{
   The ZarrArray class is a \link[DelayedArray]{DelayedArray} extension
-  for representing and operating on a Zarr dataset.
+  for representing and operating on a conventional (i.e. \emph{dense})
+  Zarr dataset.
 
   All the operations available for \link[DelayedArray]{DelayedArray}
   objects work on ZarrArray objects.
@@ -40,6 +41,12 @@ ZarrArray(zarr_path, s3_client=NULL)
     as \code{NULL} for a Zarr dataset on local storage or on a public
     S3 bucket.
   }
+}
+
+\details{
+  The implementation of the ZarrArray class leverages lower-level
+  functionality implemented in the \pkg{Rarr} package like
+  \code{Rarr::read_zarr_array()}.
 }
 
 \value{
