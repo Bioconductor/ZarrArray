@@ -1,3 +1,36 @@
+VERSION 1.2.0
+-------------
+
+NEW FEATURES
+
+    o Implement ZarrSparseMatrix objects. Analog to H5SparseMatrix and
+      TENxMatrix objects from the HDF5Array package but for Zarr-based
+      sparse matrices instead of HDF5-based.
+      Co-authored-by: Artur-man <artur-man@hotmail.com>
+
+    o Add writeZarrSparseMatrix() for realizing a matrix-like object
+      (typically sparse) as a ZarrSparseMatrix object.
+
+    o Add a new set of get/set_Zarr_realization_*() functions for
+      controlling Zarr realization settings. They replace the
+      old get/set_writeZarrArray_*() functions.
+
+    o Add support for bfloat and enable more Rarr test cases (#13).
+      Authored by Hugo Gruson <git@hugogruson.fr>
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o The default value for writeZarrArray()'s automatic arguments now
+      is "auto" instead of NULL.
+
+    o writeZarrArray()'s argument 'zarr_version' now is an automatic argument.
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecate all the get/set_writeZarrArray_*() functions in favor of
+      the new get/set_Zarr_realization_*() functions.
+
+
 VERSION 1.0.0
 -------------
 
