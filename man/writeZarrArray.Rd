@@ -25,8 +25,8 @@
 }
 
 \usage{
-writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
-               nchar=NULL, zarr_version=3, verbose=NA)
+writeZarrArray(x, zarr_path="auto", chunkdim="auto", nchar=NULL,
+                  zarr_version="auto", verbose=NA)
 }
 
 \arguments{
@@ -42,17 +42,17 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
     for more information.
   }
   \item{zarr_path}{
-    \code{NULL} or the path (as a single string) to the directory where
+    \code{"auto"} or the path (as a single string) to the directory where
     to write the data in Zarr format.
 
-    If \code{NULL}, then \code{writeZarrArray()} will obtain this path
-    by calling \code{\link{get_writeZarrArray_auto_path}()} internally.
-    See \code{?\link{writeZarrArray_auto_args}} for more information.
+    If \code{"auto"}, then \code{writeZarrArray()} will obtain this path
+    by calling \code{\link{get_Zarr_realization_auto_path}()} internally.
+    See \code{?\link{Zarr_realization_settings}} for more information.
   }
   \item{chunkdim}{
     The dimensions of the physical chunks to use when writing the data
-    to disk. See \code{?\link{writeZarrArray_auto_args}} for how this is
-    automatically determined when \code{chunkdim} is set to \code{NULL}.
+    to disk. See \code{?\link{Zarr_realization_settings}} for how this is
+    automatically determined when \code{chunkdim} is set to \code{"auto"}.
   }
   \item{nchar}{
     When \code{x} is of type \code{character}, this argument
@@ -62,8 +62,13 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
     positive integer but only if you know what you are doing.
   }
   \item{zarr_version}{
-    The version of the Zarr specification to use. Currently,
-    either \code{2} or \code{3}. The default is \code{3}.
+    \code{"auto"} or the version of the Zarr specification (i.e. 2 or 3) to
+    use for writing the data to disk.
+
+    If \code{"auto"}, then \code{writeZarrArray()} will obtain the Zarr
+    version by calling \code{\link{get_Zarr_realization_auto_version}()}
+    internally. See \code{?\link{Zarr_realization_settings}} for more
+    information.
   }
   \item{verbose}{
     Whether block processing progress should be displayed or not.
@@ -114,9 +119,9 @@ writeZarrArray(x, zarr_path=NULL, chunkdim=NULL,
   \itemize{
     \item \link{ZarrArray} objects.
 
-    \item \link{writeZarrArray_auto_args} to control \code{writeZarrArray}'s
-          \emph{automatic argument values} like \code{zarr_path} and
-          \code{chunkdim}.
+    \item \link{Zarr_realization_settings} to control \code{writeZarrArray}'s
+          automatic \code{zarr_path}, \code{chunkdim}, and \code{zarr_version}
+          values.
 
     \item \link{writeZarrSparseMatrix} to realize a matrix-like object
           (typically sparse) as a \link{ZarrSparseMatrix} object.

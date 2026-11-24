@@ -36,8 +36,9 @@
 }
 
 \usage{
-writeZarrSparseMatrix(x, zarr_store=NULL, group="/",
-                         sparse.layout="tenx", verbose=NA)
+writeZarrSparseMatrix(x, zarr_store="auto", group="auto",
+                         sparse.layout="auto",
+                         zarr_version="auto", verbose=NA)
 }
 
 \arguments{
@@ -56,20 +57,40 @@ writeZarrSparseMatrix(x, zarr_store=NULL, group="/",
     the \code{\link{writeZarrArray}} man page for more information.
   }
   \item{zarr_store}{
-    \code{NULL} or the path (as a single string) to the (new or existing)
+    \code{"auto"} or the path (as a single string) to the (new or existing)
     directory where to write the matrix data in "Zarr sparse" format.
 
-    If \code{NULL}, then \code{writeZarrSparseMatrix()} will obtain this path
-    by calling \code{\link{get_writeZarrArray_auto_path}()} internally.
-    See \code{?\link{writeZarrArray_auto_args}} for more information.
+    If \code{"auto"}, then \code{writeZarrSparseMatrix()} will obtain
+    this path by calling \code{\link{get_Zarr_realization_auto_path}()}
+    internally.
+    See \code{?\link{Zarr_realization_settings}} for more information.
   }
   \item{group}{
-    The name of the group node in the Zarr store where to write the
-    matrix data in "Zarr sparse" format.
+    \code{"auto"} or the name of the group node in the Zarr store where
+    to write the matrix data in "Zarr sparse" format.
+
+    If \code{"auto"}, then \code{writeZarrSparseMatrix()} will obtain
+    the group node by calling \code{\link{get_Zarr_realization_auto_group}()}
+    internally. See \code{?\link{Zarr_realization_settings}} for more
+    information.
   }
   \item{sparse.layout}{
-    The sparse layout to use. Only the \code{"tenx"} layout is supported
-    at the moment.
+    \code{"auto"} or the sparse layout to use. Only the \code{"tenx"} layout
+    is supported at the moment.
+
+    If \code{"auto"}, then \code{writeZarrSparseMatrix()} will obtain the
+    layout to use by calling \code{\link{get_Zarr_realization_auto_layout}()}
+    internally. See \code{?\link{Zarr_realization_settings}} for more
+    information.
+  }
+  \item{zarr_version}{
+    \code{"auto"} or the version of the Zarr specification (i.e. 2 or 3) to
+    use for writing the data to disk.
+
+    If \code{"auto"}, then \code{writeZarrSparseMatrix()} will obtain the
+    Zarr version by calling \code{\link{get_Zarr_realization_auto_version}()}
+    internally. See \code{?\link{Zarr_realization_settings}} for more
+    information.
   }
   \item{verbose}{
     Whether block processing progress should be displayed or not.
@@ -98,9 +119,10 @@ writeZarrSparseMatrix(x, zarr_store=NULL, group="/",
   \itemize{
     \item \link{ZarrSparseMatrix} objects.
 
-    \item \link{writeZarrArray_auto_args} to control
-          \code{writeZarrSparseMatrix}'s \emph{automatic argument values}
-          like \code{zarr_store}.
+    \item \link{Zarr_realization_settings} to control
+          \code{writeZarrSparseMatrix}'s automatic \code{zarr_store},
+          \code{group}, \code{sparse.layout}, and \code{zarr_version}
+          values.
 
     \item \link{writeZarrArray} to realize a matrix-like or array-like
           object (typically dense) as a \link{ZarrArray} object.

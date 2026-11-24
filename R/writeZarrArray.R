@@ -34,7 +34,7 @@ setMethod("chunkdim", "ZarrRealizationSink", function(x) x@chunkdim)
 .normarg_chunkdim <- function(chunkdim, dim)
 {
     if (!(is.numeric(chunkdim) || is.logical(chunkdim) && all(is.na(chunkdim))))
-        stop(wmsg("'chunkdim' must be NULL or an integer vector"))
+        stop(wmsg("'chunkdim' must be \"auto\" or an integer vector"))
     if (!is.integer(chunkdim))
         chunkdim <- as.integer(chunkdim)
     if (length(chunkdim) != length(dim))
@@ -63,23 +63,30 @@ setMethod("chunkdim", "ZarrRealizationSink", function(x) x@chunkdim)
 ### Based on Rarr::create_empty_zarr_array() which only supports creation
 ### of Zarr v2 datasets at the moment (Rarr 1.11.24).
 ZarrRealizationSink <- function(dim, dimnames=NULL, type="double",
-                                zarr_path=NULL, chunkdim=NULL,
-                                fill_value=NULL, nchar=NULL, zarr_version=3)
+                                zarr_path="auto", chunkdim="auto",
+                                fill_value=NULL, nchar=NULL,
+                                zarr_version="auto")
 {
     dim <- S4Arrays:::normarg_dim(dim)
     if (!is.null(dimnames))
         warning(wmsg("'dimnames' is not supported and will be ignored"),
                 immediate.=TRUE)
-    if (is.null(zarr_path)) {
-        zarr_path <- get_writeZarrArray_auto_path()
+    if (isSingleString(zarr_path) && zarr_path == "auto" ||
+        is.null(zarr_path))
+    {
+        zarr_path <- get_Zarr_realization_auto_path()
     } else {
         zarr_path <- Rarr:::.normalize_array_path(zarr_path)
     }
-    if (is.null(chunkdim)) {
-        chunkdim <- get_writeZarrArray_auto_chunkdim(dim)
+    if (isSingleString(chunkdim) && chunkdim == "auto" ||
+        is.null(chunkdim))
+    {
+        chunkdim <- get_Zarr_realization_auto_chunkdim(dim, type)
     } else {
         chunkdim <- .normarg_chunkdim(chunkdim, dim)
     }
+    if (isSingleString(zarr_version) && zarr_version == "auto")
+        zarr_version <- get_Zarr_realization_auto_version()
     create_empty_zarr_array2(zarr_path, dim, chunkdim, type,
                              fill_value=fill_value, nchar=nchar,
                              zarr_version=zarr_version)
@@ -137,9 +144,8 @@ setAs("ZarrRealizationSink", "DelayedArray",
 ### Does NOT write dimnames(x) to disk at the moment!
 ### TODO: writeZarrArray() needs to write the array dimnames to disk.
 ### Does the Zarr format support this?
-writeZarrArray <- function(x, zarr_path=NULL, chunkdim=NULL,
-                              nchar=NULL, zarr_version=3,
-                              verbose=NA)
+writeZarrArray <- function(x, zarr_path="auto", chunkdim="auto", nchar=NULL,
+                              zarr_version="auto", verbose=NA)
 {
     x_dim <- dim(x)
     if (is.null(x_dim))
@@ -176,7 +182,7 @@ writeZarrArray <- function(x, zarr_path=NULL, chunkdim=NULL,
                       "this is not supported yet"))
     }
     verbose <- DelayedArray:::normarg_verbose(verbose)
-    if (is.null(chunkdim))
+    if (isSingleString(chunkdim) && chunkdim == "auto" || is.null(chunkdim))
         chunkdim <- chunkdim(x)
     sink <- ZarrRealizationSink(x_dim, NULL, x_type,
                                 zarr_path=zarr_path, chunkdim=chunkdim,

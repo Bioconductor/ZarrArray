@@ -1,11 +1,31 @@
-o Implement ZarrADMatrixSeed and ZarrADMatrix objects (analog to
-  H5ADMatrixSeed and H5ADMatrix objects from the HDF5Array package).
+o Register realization backend ZarrSparseMatrix in the DelayedArray
+  package.
+
+o Compare performance of writeZarrSparseMatrix() vs writeTEnxMatrix().
+  When block processing is involved, there seems to be a huge fixed
+  overhead to pay per block.
+
+o Merge Arthur's PR that implements ZarrADMatrixSeed and ZarrADMatrix
+  objects (analog to H5ADMatrixSeed and H5ADMatrix objects from the
+  HDF5Array package).
+
+o writeZarrSparseMatrix() only supports 'sparse.layout="tenx"' at the
+  moment. Implement support for '"anndata-csc"' and '"anndata-csr"'.
+
+o Does Rarr support accessing a Zarr dataset stored in an S3 bucket
+  at the moment. How well is this supported? The goal is to make
+  the ZarrArraySeed() and ZarrSparseMatrixSeed() constructors work
+  for S3-hosted Zarr datasets.
 
 o Does Rarr provide an equivalent of h5ls() for quick inspection of
   a Zarr store? This would be very useful in the context of using
   things like ZarrSparseMatrixSeed() or ZarrSparseMatrix() where the
   user needs to identify the group nodes in a Zarr store that represent
   sparse matrices.
+
+o Implement saveZarrSummarizedExperiment() and
+  loadZarrSummarizedExperiment() for saving/loading
+  a Zarr-based SummarizedExperiment object to/from disk.
 
 o See this PR for anndataR (Bioconductor package) by Mark Keller and
   Artür Manukyan: https://github.com/scverse/anndataR/pull/190
@@ -32,12 +52,4 @@ o Benchmarking:
   - Concurrency: is it suported for reading and writing, or only for reading?
     (Note that hdf5 is notorious for not supporting concurrent writing to
     the same dataset.) Do some benchmarking using BiocParallel.
-
-
-After ZarrArray is accepted and added to BioC 3.23
-==================================================
-
-o Implement saveZarrSummarizedExperiment() and
-  loadZarrSummarizedExperiment() for saving/loading
-  a Zarr-based SummarizedExperiment object to/from disk.
 
