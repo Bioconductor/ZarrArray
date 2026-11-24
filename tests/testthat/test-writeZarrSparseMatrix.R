@@ -199,30 +199,33 @@ test_that("writeZarrSparseMatrix", {
     dgc <- as(svt, "dgCMatrix")
 
     library(HDF5Array)
-    tenx <- writeTENxMatrix(svt)
+    TENx <- writeTENxMatrix(svt)
 
-    objects <- list(svt, m, dgc, tenx)
+    objects <- list(svt, m, dgc, TENx)
 
     ## By default, blocks are much bigger than 'svt', so, BLOCK_write_to_sink(),
     ## the workhorse behind writeZarrSparseMatrix(), would walk on a grid
     ## made of a single block that covers the full matrix-like object to
     ## write.
-    ## So choosing a block size that will induce a grid made of 4 blocks.
+    ## So choosing a block size that will induce a grid made of 3 blocks.
     ## This can be seen by calling writeZarrSparseMatrix() with 'verbose=TRUE'.
-    setAutoBlockSize(95000)
+    setAutoBlockSize(135000)
 
-    zarr_store <- tempfile(fileext=".zarr")
-
-    for (i in seq_along(objects)) {
-        group <- paste0("/M", i)
-        ZSM <- writeZarrSparseMatrix(svt, zarr_store, group=group)
-        expect_true(is(ZSM, "ZarrSparseMatrix"))
-        expect_identical(dim(ZSM), dim(svt))
-        expect_identical(chunkdim(ZSM), c(100L, 1L))
-        expect_identical(path(ZSM), zarr_store)
-        expect_identical(group(ZSM), group)
-        expect_identical(extract_sparse_array(ZSM, list(NULL, NULL)), svt)
-        expect_identical(as.matrix(ZSM), m)
+    for (zarr_version in 3:2) {
+        zarr_store <- tempfile(fileext=".zarr")
+        for (i in seq_along(objects)) {
+            x <- objects[[i]]
+            group <- paste0("/M", i)
+            ZSM <- writeZarrSparseMatrix(x, zarr_store=zarr_store, group=group,
+                                         zarr_version=zarr_version)
+            expect_true(is(ZSM, "ZarrSparseMatrix"))
+            expect_identical(dim(ZSM), dim(svt))
+            expect_identical(chunkdim(ZSM), c(100L, 1L))
+            expect_identical(path(ZSM), zarr_store)
+            expect_identical(group(ZSM), group)
+            expect_identical(extract_sparse_array(ZSM, list(NULL, NULL)), svt)
+            expect_identical(as.matrix(ZSM), m)
+        }
     }
 })
 

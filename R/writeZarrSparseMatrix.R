@@ -59,8 +59,8 @@ setMethod("dimnames", "ZarrSparseMatrixRealizationSink",
 
 setMethod("type", "ZarrSparseMatrixRealizationSink", function(x) x@type)
 
-### If 'zarr_store' is NULL (the default), the path to the Zarr store is
-### obtained with get_writeZarrArray_auto_path().
+### If 'zarr_store' is "auto" (the default), the path to the Zarr store
+### is obtained with get_Zarr_realization_auto_path().
 ### NOTE: We don't support 'type="character"' at the moment.
 ### TODO: Add 'nchar' argument and support 'type="character"' like in
 ### ZarrRealizationSink().
@@ -69,7 +69,8 @@ setMethod("type", "ZarrSparseMatrixRealizationSink", function(x) x@type)
 ### ZarrSparseMatrixSeed().
 ZarrSparseMatrixRealizationSink <-
     function(dim, dimnames=NULL, type="double",
-             zarr_store=NULL, group="/", sparse.layout="tenx")
+             zarr_store="auto", group="auto", sparse.layout="auto",
+             zarr_version="auto")
 {
     dim <- S4Arrays:::normarg_dim(dim)
     if (length(dim) != 2L)
@@ -82,31 +83,46 @@ ZarrSparseMatrixRealizationSink <-
             stop(wmsg("'dimnames' must be NULL or a list ",
                       "with 1 list element per dimension"))
     }
-    if (is.null(zarr_store)) {
-        zarr_store <- get_writeZarrArray_auto_path()
+    if (isSingleString(zarr_store) && zarr_store == "auto" ||
+        is.null(zarr_store))
+    {
+        zarr_store <- get_Zarr_realization_auto_path()
     } else {
         zarr_store <- Rarr:::.normalize_array_path(zarr_store)
     }
-    group <- normarg_zarr_group(group,
-                                what3=" where to write the sparse matrix")
+    if (isSingleString(group) && group == "auto") {
+        group <- get_Zarr_realization_auto_group()
+    } else {
+        group <- normarg_zarr_group(group,
+                                    what3=" where to write the sparse matrix")
+    }
     ## write_zarr_group() doesn't like it when 'group' starts with '/'.
     if (startsWith(group, "/"))
         group <- substr(group, 2L, nchar(group))
 
-    sparse.layout <- .normarg_sparse.layout(sparse.layout)
+    if (isSingleString(sparse.layout) && sparse.layout == "auto") {
+        sparse.layout <- get_Zarr_realization_auto_layout()
+    } else {
+        sparse.layout <- .normarg_sparse.layout(sparse.layout)
+    }
 
-    Rarr::write_zarr_group(zarr_store, group)
+    if (isSingleString(zarr_version) && zarr_version == "auto")
+        zarr_version <- get_Zarr_realization_auto_version()
+
+    Rarr::write_zarr_group(zarr_store, group, zarr_version=zarr_version)
     group_path <- file.path(zarr_store, group)
 
     shape_path <- file.path(group_path, "shape")
-    write_zarr_array(array(dim), shape_path, chunk_dim=length(dim))
+    Rarr::write_zarr_array(array(dim), shape_path, chunk_dim=length(dim),
+                           zarr_version=zarr_version)
 
     data_path <- file.path(group_path, "data")
-    create_empty_zarr_array2(data_path, dim=0L, chunkdim=25000000L, type=type)
+    create_empty_zarr_array2(data_path, dim=0L, chunkdim=25000000L,
+                             type=type, zarr_version=zarr_version)
 
     indices_path <- file.path(group_path, "indices")
     create_empty_zarr_array2(indices_path, dim=0L, chunkdim=25000000L,
-                             type="integer")
+                             type="integer", zarr_version=zarr_version)
 
     indptr_path <- file.path(group_path, "indptr")
     indptr_len <- max(dim[[2L]], 1L)
@@ -114,7 +130,8 @@ ZarrSparseMatrixRealizationSink <-
     ## larger than array dimensions" warning (doesn't happen when 'dim' is 0).
     suppressWarnings(
         create_empty_zarr_array2(indptr_path, dim=1L, chunkdim=indptr_len,
-                                 type="double", fill_value=0)
+                                 type="double", fill_value=0,
+                                 zarr_version=zarr_version)
     )
 
     new2("ZarrSparseMatrixRealizationSink",
@@ -245,18 +262,20 @@ setAs("ZarrSparseMatrixRealizationSink", "DelayedArray",
 ### writeZarrSparseMatrix()
 ###
 
-### If 'zarr_store' is NULL (the default), the path to the Zarr store is
-### obtained with get_writeZarrArray_auto_path().
+### If 'zarr_store' is "auto" (the default), the path to the Zarr store is
+### obtained with get_Zarr_realization_auto_path().
 ### NOTE: We don't support 'type="character"' at the moment.
 ### TODO: Add 'nchar' argument and support 'type="character"' like in
 ### writeZarrArray().
-writeZarrSparseMatrix <- function(x, zarr_store=NULL, group="/",
-                                  sparse.layout="tenx", verbose=NA)
+writeZarrSparseMatrix <- function(x, zarr_store="auto", group="auto",
+                                     sparse.layout="auto",
+                                     zarr_version="auto", verbose=NA)
 {
     verbose <- DelayedArray:::normarg_verbose(verbose)
     sink <- ZarrSparseMatrixRealizationSink(dim(x), dimnames(x), type(x),
                                             zarr_store=zarr_store, group=group,
-                                            sparse.layout=sparse.layout)
+                                            sparse.layout=sparse.layout,
+                                            zarr_version=zarr_version)
     sink <- BLOCK_write_to_sink(sink, x, verbose=verbose)
     ans <- as(sink, "ZarrSparseMatrix")  # will call close() on 'sink'
     if (verbose)
@@ -278,7 +297,7 @@ writeZarrSparseMatrix <- function(x, zarr_store=NULL, group="/",
 ### ZarrSparseMatrixRealizationSink object.
 ###
 
-### Writes to Zarr store path obtained with get_writeZarrArray_auto_path().
+### Writes to Zarr store path obtained with get_Zarr_realization_auto_path().
 .as_ZarrSparseMatrix <- function(from) writeZarrSparseMatrix(from)
 
 setAs("ANY", "ZarrSparseMatrix", .as_ZarrSparseMatrix)

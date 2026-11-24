@@ -15,6 +15,11 @@
 \title{Control writeZarrArray's automatic argument values}
 
 \description{
+  IMPORTANT NOTE: Starting with Bioconductor 3.25, all the functions
+  documented in this man page are deprecated in favor of the new
+  functions documented in \code{?\link{Zarr_realization_settings}}.
+  Please do NOT use them. They will become defunct in Bioconductor 3.26!
+
   \code{get_writeZarrArray_auto_path()} and
   \code{get_writeZarrArray_auto_chunkdim()} are used internally by
   \code{\link{writeZarrArray}()} and \code{\link{ZarrRealizationSink}()}
@@ -32,7 +37,7 @@ get_writeZarrArray_auto_chunkdim(dim)
 set_writeZarrArray_dump_dir(dir)
 
 ## Control the value returned by get_writeZarrArray_auto_chunkdim():
-set_writeZarrArray_chunk_maxlen(maxlen=1000000L)
+set_writeZarrArray_chunk_maxlen(maxlen=250000L)
 set_writeZarrArray_chunk_shape(shape="scale")
 
 ## The "get" functions that correspond to the "set" functions above:
@@ -95,8 +100,8 @@ get_writeZarrArray_chunk_shape()
 
   In other words, the \code{set_writeZarrArray_*()} utility functions
   provide some control over the behavior of \code{\link{writeZarrArray}()}
-  and \code{\link{ZarrRealizationSink}()} when only their first argument
-  is specified, like in:
+  and \code{\link{ZarrRealizationSink}()} when the latter are called with
+  their first argument only, like in:
   \preformatted{    a <- array(101:160, dim=5:3)
     A <- writeZarrArray(a)}
   or in:
@@ -165,6 +170,11 @@ get_writeZarrArray_chunk_shape()
 }
 
 \examples{
+## IMPORTANT NOTE: Starting with Bioconductor 3.25, all the functions
+## documented in this man page are deprecated in favor of the new
+## functions documented in '?Zarr_realization_settings'. Please do NOT
+## use them. They will become defunct in Bioconductor 3.26!
+\dontrun{
 a <- array(101:160, dim=5:3)
 
 get_writeZarrArray_dump_dir()  # default "Zarr realization dump"
@@ -182,7 +192,8 @@ m <- matrix(101:140, ncol=8)
 M <- as(m, "ZarrArray")  # equivalent to writeZarrArray(m)
 path(M)
 
-## Set "Zarr realization dump" to the default:
+## Reset "Zarr realization dump" to its default:
 set_writeZarrArray_dump_dir()
+}
 }
 \keyword{utilities}

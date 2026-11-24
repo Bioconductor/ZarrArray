@@ -82,6 +82,17 @@ export(
     ## ZarrArray-class.R:
     ZarrArray,
 
+    ## Zarr-realization-settings.R:
+    get_Zarr_realization_dump_dir, set_Zarr_realization_dump_dir,
+    get_Zarr_realization_auto_path,
+    get_Zarr_realization_chunk_maxsize, set_Zarr_realization_chunk_maxsize,
+    get_Zarr_realization_chunk_maxlen,
+    get_Zarr_realization_chunk_shape, set_Zarr_realization_chunk_shape,
+    get_Zarr_realization_auto_chunkdim,
+    get_Zarr_realization_auto_version, set_Zarr_realization_auto_version,
+    get_Zarr_realization_auto_group, set_Zarr_realization_auto_group,
+    get_Zarr_realization_auto_layout, set_Zarr_realization_auto_layout,
+
     ## writeZarrArray-auto-args.R:
     get_writeZarrArray_dump_dir, set_writeZarrArray_dump_dir,
     get_writeZarrArray_auto_path,

@@ -11,27 +11,27 @@
 ###
 
 ### Hacky and ugly! :-/
-.ZARR_V2_METADATA_FILE <- ".zarray"
+.ZARR_V2_ARRAY_METADATA_FILE <- ".zarray"
+.ZARR_V2_GROUP_METADATA_FILE <- ".zgroup"
 .ZARR_V3_METADATA_FILE <- "zarr.json"
 
 .get_zarr_metadata_path <- function(zarr_path, s3_client=NULL)
 {
     zarr_path <- Rarr:::.normalize_array_path(zarr_path)
-    metadata_files <- c(.ZARR_V2_METADATA_FILE, .ZARR_V3_METADATA_FILE)
+    metadata_files <- c(.ZARR_V2_ARRAY_METADATA_FILE,
+                        .ZARR_V2_GROUP_METADATA_FILE,
+                        .ZARR_V3_METADATA_FILE)
     ok <- Rarr:::.store_check_exist(zarr_path, files=metadata_files,
                                     s3_client=s3_client)
-    if (!any(ok))
-        stop(wmsg("No Zarr metadata file ('", .ZARR_V2_METADATA_FILE, "' ",
-                  "or '", .ZARR_V3_METADATA_FILE, "') found in: ", zarr_path),
-             "\n  ",
-             wmsg("Are you sure this is the path to a Zarr dataset?"))
-    if (all(ok))
-        stop(wmsg("Invalid Zarr dataset at: ", zarr_path),
-             "\n  ",
-             wmsg("Directory contains Zarr metadata files ",
-                   "'", .ZARR_V2_METADATA_FILE, "' and ",
-                   "'", .ZARR_V3_METADATA_FILE, "'. Should contain one ",
-                   "or the other, but not both."))
+    nb_metadata_files <- sum(ok)
+    if (nb_metadata_files != 1L) {
+        in1string <- paste0("'", metadata_files, "'", collapse=", ")
+        stop(wmsg("Invalid Zarr folder: ", zarr_path),
+             "\n\n  ",
+             wmsg("Folder should contain one of files ", in1string, ". ",
+                  "Contains ", nb_metadata_files, ". Are you sure ",
+                  "this is the path to a Zarr array or group?"))
+    }
     ## Not using file.path() here because Rarr:::.normalize_array_path()
     ## above already added a trailing / to 'zarr_path'.
     paste0(zarr_path, names(ok)[ok])
@@ -52,15 +52,17 @@
 .update_zarr_shape <- function(zarr_path, new_shape)
 {
     metadata_path <- .get_zarr_metadata_path(zarr_path)
-    if (basename(metadata_path) != .ZARR_V3_METADATA_FILE)
-        stop(wmsg("cannot update the \"shape\" of this Zarr array: ",
-                  "Zarr node is not in Zarr V3 format"))
+    if (basename(metadata_path) == .ZARR_V2_GROUP_METADATA_FILE)
+         stop(wmsg("Invalid Zarr array: ", zarr_path),
+              "\n\n  ",
+              wmsg("Zarr node is a group, not an array."))
     metadata <- Rarr:::.read_json_file(metadata_path)
-    stopifnot(metadata$zarr_format == 3L)
-    if (metadata$node_type != "array")
-        stop(wmsg("cannot update the \"shape\" of this Zarr array: ",
-                  "Zarr node is not of type \"", metadata$node_type, "\", ",
-                  "must be of type \"array\""))
+    stopifnot(isSingleNumber(metadata$zarr_format),
+              metadata$zarr_format %in% 2:3)
+    if (metadata$zarr_format == 3L && metadata$node_type != "array")
+        stop(wmsg("Invalid Zarr array: ", zarr_path),
+             "\n\n",
+             wmsg("Zarr node is a ", metadata$node_type, ", not an array."))
     stopifnot(is.list(metadata$shape))
     new_shape <- .normarg_new_shape(new_shape)
     if (length(new_shape) != length(metadata$shape))
@@ -69,8 +71,8 @@
     metadata$shape <- as.list(new_shape)
     ## Calling write_json() here like Rarr:::.write_zarr_metadata() does
     ## to write the metadata.
-    write_json(metadata, metadata_path,
-               auto_unbox=TRUE, pretty=TRUE, null="null")
+    jsonlite::write_json(metadata, metadata_path,
+                         auto_unbox=TRUE, pretty=TRUE, null="null")
 }
 
 
