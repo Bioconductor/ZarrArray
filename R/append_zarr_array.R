@@ -48,7 +48,6 @@
     trunc(new_shape)
 }
 
-### Only works for Zarr arrays in V3 format!
 .update_zarr_shape <- function(zarr_path, new_shape)
 {
     metadata_path <- .get_zarr_metadata_path(zarr_path)
