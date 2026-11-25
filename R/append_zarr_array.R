@@ -83,11 +83,6 @@
 ###
 
 ### Has its own unit tests in tests/testthat/test-append_zarr_array.R!
-### IMPORTANT NOTE: append_zarr_array() is based on Rarr::update_zarr_array()
-### which will **silently** alter the values in 'x' that don't fit in
-### the 'data_type' of the destination array. For example, if 'data_type'
-### is "uint8", then 'x' will silently be replaced with 'x %% 256' when
-### written on disk.
 ### Returns the new length of the array.
 append_zarr_array <- function(zarr_path, x)
 {
